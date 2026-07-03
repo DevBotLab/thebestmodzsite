@@ -81,7 +81,8 @@ model User {
 
   sessions             Session[]
   orders               Order[]
-  balanceTransactions  BalanceTransaction[]
+  balanceTransactions  BalanceTransaction[]   @relation("UserBalanceTransactions")
+  relatedTransactions  BalanceTransaction[]   @relation("UserRelatedTransactions")
   payments             Payment[]
   referralsMade        Referral[]             @relation("Referrer")
   referralsReceived    Referral[]             @relation("Referred")
@@ -220,12 +221,12 @@ model Order {
 model BalanceTransaction {
   id             String                  @id @default(cuid()) @db.VarChar(255)
   userId         String                  @db.VarChar(255)
-  user           User                    @relation(fields: [userId], references: [id])
+  user           User                    @relation("UserBalanceTransactions", fields: [userId], references: [id])
   amount         Decimal                 @db.Decimal(12, 2)
   type           BalanceTransactionType
   description    String?                 @db.Text
   relatedUserId  String?                 @db.VarChar(255)
-  relatedUser    User?                   @relation(fields: [relatedUserId], references: [id])
+  relatedUser    User?                   @relation("UserRelatedTransactions", fields: [relatedUserId], references: [id])
   orderId        String?                 @db.VarChar(255)
   order          Order?                  @relation(fields: [orderId], references: [id])
   createdAt      DateTime                @default(now())
