@@ -4,7 +4,6 @@ import { prisma } from '@/lib/prisma'
 import { success, unauthorized, forbidden, error, validationError } from '@/lib/api-response'
 import { createProductSchema } from '@/lib/validations'
 import { Prisma } from '@prisma/client'
-import slugify from 'slugify'
 
 export async function GET(req: NextRequest) {
   const session = await getSession()
@@ -61,7 +60,7 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) return validationError(parsed.error.flatten().fieldErrors as Record<string, string[]>)
 
   const { name, description, categoryId, platform, sortOrder } = parsed.data
-  const baseSlug = slugify(name, { lower: true, strict: true })
+  const baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'product'
   let slug = baseSlug
   let counter = 1
   while (await prisma.product.findUnique({ where: { slug } })) {
