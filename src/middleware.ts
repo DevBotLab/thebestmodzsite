@@ -174,7 +174,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Block repeated failed auth attempts
-  if (isAuthPath && request.method !== 'POST' && pathname !== '/api/auth/refresh') {
+  if (isAuthPath(pathname) && request.method !== 'POST' && pathname !== '/api/auth/refresh') {
     const ip = getIp(request)
     const failedKey = `failed:${ip}`
     const now = Date.now()
