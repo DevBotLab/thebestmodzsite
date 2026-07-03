@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server'
-import { getSession, checkIsAdmin } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import { success, unauthorized, forbidden, notFound, validationError } from '@/lib/api-response'
-import { createBannerSchema } from '@/lib/validations'
+import { getSession, checkIsAdmin } from '../../../../../lib/auth'
+import { prisma } from '../../../../../lib/prisma'
+import { success, unauthorized, forbidden, notFound, validationError } from '../../../../../lib/api-response'
+import { createBannerSchema } from '../../../../../lib/validations'
 
 const updateBannerSchema = createBannerSchema.partial()
 
