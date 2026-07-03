@@ -9,8 +9,7 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(Number(req.nextUrl.searchParams.get('limit')) || 20, 50)
   const productId = req.nextUrl.searchParams.get('productId')
 
-  const where: Record<string, unknown> = { isApproved: true }
-  if (productId) where.productId = productId
+  const where = { isApproved: true, ...(productId ? { productId } : {}) }
 
   const reviews = await prisma.review.findMany({
     where,

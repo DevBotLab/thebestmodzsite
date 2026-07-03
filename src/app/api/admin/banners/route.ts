@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json()
   const parsed = createBannerSchema.safeParse(body)
-  if (!parsed.success) return validationError(parsed.error.flatten().fieldErrors)
+  if (!parsed.success) return validationError(parsed.error.flatten().fieldErrors as Record<string, string[]>)
 
   const banner = await prisma.banner.create({ data: parsed.data })
   return success(banner, 201)

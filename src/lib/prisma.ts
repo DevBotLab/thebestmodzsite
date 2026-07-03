@@ -8,18 +8,11 @@ export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
     log: [
-      { level: 'query', emit: 'event' },
+      { level: 'query', emit: 'stdout' },
       { level: 'error', emit: 'stdout' },
       { level: 'warn', emit: 'stdout' },
     ],
   })
-
-// Log slow queries (>1s)
-prisma.$on('query', (e) => {
-  if (e.duration > 1000) {
-    console.warn(`[SLOW QUERY] ${e.duration}ms: ${e.query}`)
-  }
-})
 
 // Connection pool: max 10 (set via DATABASE_URL ?connection_limit=10)
 // Handle connection errors

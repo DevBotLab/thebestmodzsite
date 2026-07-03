@@ -23,7 +23,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   const body = await req.json()
   const parsed = updateBannerSchema.safeParse(body)
-  if (!parsed.success) return validationError(parsed.error.flatten().fieldErrors)
+  if (!parsed.success) return validationError(parsed.error.flatten().fieldErrors as Record<string, string[]>)
 
   const banner = await prisma.banner.update({ where: { id: params.id }, data: parsed.data })
   return success(banner)

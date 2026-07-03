@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import { success } from '@/lib/api-response'
 
 export async function GET(req: NextRequest) {
@@ -10,11 +11,9 @@ export async function GET(req: NextRequest) {
   const cursor = searchParams.get('cursor')
   const limit = Math.min(Number(searchParams.get('limit')) || 20, 50)
 
-  const where: Record<string, unknown> = {}
-  if (categoryId) where.categoryId = categoryId
-  if (platform) where.platform = platform
+  const where = { ...(categoryId ? { categoryId } : {}), ...(platform ? { platform } : {}) }
 
-  let orderBy: Record<string, string> = { sortOrder: 'asc' }
+  let orderBy: Prisma.ProductOrderByWithRelationInput = { sortOrder: 'asc' }
   if (sortBy === 'popularity') orderBy = { sortOrder: 'asc' }
 
   const products = await prisma.product.findMany({

@@ -15,9 +15,7 @@ export async function GET(req: NextRequest) {
   const userId = searchParams.get('userId')
   const action = searchParams.get('action')
 
-  const where: Record<string, unknown> = {}
-  if (userId) where.userId = userId
-  if (action) where.action = action
+  const where = { ...(userId ? { userId } : {}), ...(action ? { action } : {}) }
 
   const [items, total] = await Promise.all([
     prisma.auditLog.findMany({

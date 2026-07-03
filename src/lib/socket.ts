@@ -42,7 +42,7 @@ export function initSocket(httpServer: HTTPServer) {
       const { prisma } = await import('./prisma');
       try {
         const message = await prisma.ticketMessage.create({
-          data: { ticketId: parseInt(ticketId), userId: user.userId, text, isAdmin: user.isAdmin || false },
+          data: { ticketId, userId: user.userId, text, isAdmin: user.isAdmin || false },
         });
         io.to(`ticket:${ticketId}`).emit('ticket:newMessage', message);
         if (!user.isAdmin) {
