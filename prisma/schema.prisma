@@ -82,8 +82,6 @@ model User {
   sessions             Session[]
   orders               Order[]
   balanceTransactions  BalanceTransaction[]
-  sentTransfers        BalanceTransaction[]   @relation("TransferSent")
-  receivedTransfers    BalanceTransaction[]   @relation("TransferReceived")
   payments             Payment[]
   referralsMade        Referral[]             @relation("Referrer")
   referralsReceived    Referral[]             @relation("Referred")
@@ -227,7 +225,7 @@ model BalanceTransaction {
   type           BalanceTransactionType
   description    String?                 @db.Text
   relatedUserId  String?                 @db.VarChar(255)
-  relatedUser    User?                   @relation("TransferSent", fields: [relatedUserId], references: [id])
+  relatedUser    User?                   @relation(fields: [relatedUserId], references: [id])
   orderId        String?                 @db.VarChar(255)
   order          Order?                  @relation(fields: [orderId], references: [id])
   createdAt      DateTime                @default(now())
