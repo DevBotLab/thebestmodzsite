@@ -34,22 +34,21 @@ export async function PUT(req: NextRequest) {
   const parsed = updatePaymentMethodSchema.safeParse(body)
   if (!parsed.success) return validationError(parsed.error.flatten().fieldErrors as Record<string, string[]>)
 
-  const { id, ...data } = parsed.data
+  const { id, config, ...rest } = parsed.data
 
   const method = await prisma.paymentMethod.update({
     data: {
-      ...data,
-      config: data.config as Prisma.InputJsonValue | undefined,
+      ...rest,
+      ...(config ? { config: config as unknown as Prisma.InputJsonValue } : {}),
     },
     where: { id },
-    data,
   })
 
   await prisma.auditLog.create({
     data: {
       userId: session.userId,
       action: 'PAYMENT_METHOD_UPDATE',
-      details: { methodId: id, changes: data },
+      details: { methodId: id, changes: { config, ...rest } },
     },
   })
 

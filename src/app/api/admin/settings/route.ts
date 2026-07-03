@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { getSession, checkIsAdmin } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { success, unauthorized, forbidden, validationError } from '@/lib/api-response'
+import { Prisma } from '@prisma/client'
 import { z } from 'zod'
 
 const DEFAULT_SETTINGS: Record<string, any> = {
@@ -45,8 +46,8 @@ export async function PUT(req: NextRequest) {
   for (const [key, value] of Object.entries(parsed.data)) {
     await prisma.systemSetting.upsert({
       where: { key },
-      update: { value },
-      create: { key, value },
+      update: { value: value as Prisma.InputJsonValue },
+      create: { key, value: value as Prisma.InputJsonValue },
     })
   }
 
