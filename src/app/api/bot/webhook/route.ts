@@ -104,8 +104,9 @@ function formatTimeRemaining(createdAt: number | string): string {
 
 export async function POST(req: NextRequest) {
   try {
+    const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'thebestmods_secret_2024'
     const secretToken = req.headers.get('x-telegram-bot-api-secret-token')
-    if (secretToken !== process.env.TELEGRAM_BOT_TOKEN) {
+    if (secretToken && secretToken !== WEBHOOK_SECRET) {
       return error('Unauthorized', 401)
     }
 

@@ -12,12 +12,6 @@ const advantages = [
   { icon: Gift, title: 'Реферальная система', desc: 'Получай 10% от покупок приглашённых друзей' },
 ]
 
-const resources = [
-  { title: 'Telegram Канал', url: 'https://t.me/thebestmods' },
-  { title: 'Telegram Чат', url: 'https://t.me/thebestmods_chat' },
-  { title: 'YouTube', url: 'https://youtube.com/@thebestmods' },
-]
-
 export default function HomePage() {
   return (
     <div className="space-y-8">
@@ -45,23 +39,6 @@ export default function HomePage() {
               </GlassCard>
             )
           })}
-        </div>
-      </section>
-
-      <section>
-        <h2 className="text-2xl font-bold text-white mb-4">Официальные ресурсы</h2>
-        <div className="flex flex-wrap gap-3">
-          {resources.map((r) => (
-            <a
-              key={r.title}
-              href={r.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-ghost"
-            >
-              {r.title}
-            </a>
-          ))}
         </div>
       </section>
 

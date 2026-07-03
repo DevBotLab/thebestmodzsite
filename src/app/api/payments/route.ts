@@ -10,5 +10,11 @@ export async function GET(_req: NextRequest) {
     orderBy: { sortOrder: 'asc' },
   })
 
-  return success(methods)
+  const settings = await prisma.systemSetting.findMany({
+    where: { key: { in: ['card_ua_number', 'card_ua_bank', 'card_ua_name', 'card_mastercard_number', 'card_mastercard_name', 'paypal_email', 'paypal_name'] } },
+  })
+
+  const settingsMap = Object.fromEntries(settings.map(s => [s.key, s.value]))
+
+  return success({ methods, settings: settingsMap })
 }
