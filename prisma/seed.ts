@@ -1,4 +1,4 @@
-import { PrismaClient, CheatStatusEnum, Platform, TariffName } from '@prisma/client';
+import { PrismaClient, Platform, TariffName } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -6,6 +6,7 @@ async function main() {
   console.log('Seeding database...');
 
   // Clean all tables in dependency order
+  await prisma.reviewLike.deleteMany();
   await prisma.ticketMessage.deleteMany();
   await prisma.supportTicket.deleteMany();
   await prisma.referralTransaction.deleteMany();
@@ -54,236 +55,63 @@ async function main() {
   // ─── Users ────────────────────────────────────────────────────────────────
   const adminUser = await prisma.user.create({
     data: {
-      tgId: process.env.ADMIN_TELEGRAM_IDS?.split(',')[0]?.trim() || '123456789',
       tgUsername: 'admin',
-      firstName: 'Главный',
+      firstName: 'Системный',
       lastName: 'Администратор',
-      balance: 999999,
+      balance: 0,
       referralCode: 'admin',
       referralPercent: 10,
       isAdmin: true,
       roleId: adminRole.id,
     },
   });
-
-  const user1 = await prisma.user.create({
-    data: {
-      tgId: '111111111',
-      tgUsername: 'testuser1',
-      firstName: 'Тест',
-      lastName: 'Пользователь',
-      balance: 1000,
-      referralCode: 'user1ref',
-      referralPercent: 5,
-      isAdmin: false,
-    },
-  });
-
-  const user2 = await prisma.user.create({
-    data: {
-      tgId: '222222222',
-      tgUsername: 'testuser2',
-      firstName: 'Второй',
-      lastName: 'Юзер',
-      balance: 500,
-      referralCode: 'user2ref',
-      referralPercent: 5,
-      isAdmin: false,
-    },
-  });
-  console.log('Users created:', adminUser.tgUsername, user1.tgUsername, user2.tgUsername);
+  console.log('Admin user created:', adminUser.tgUsername);
 
   // ─── Categories ───────────────────────────────────────────────────────────
-  const catPubg = await prisma.category.create({
-    data: { name: 'PUBG MOBILE', slug: 'pubg-mobile', description: 'Читы для PUBG MOBILE', sortOrder: 1, icon: 'pubg' },
+  const catPopular = await prisma.category.create({
+    data: { name: 'Популярное', slug: 'popular', description: 'Популярные товары', sortOrder: 1, icon: 'popular' },
   });
-  const catMl = await prisma.category.create({
-    data: { name: 'MOBILE LEGENDS', slug: 'mobile-legends', description: 'Читы для Mobile Legends', sortOrder: 2, icon: 'ml' },
-  });
-  const catStandoff = await prisma.category.create({
-    data: { name: 'СТЭНДОФФ', slug: 'standoff', description: 'Читы для Standoff 2', sortOrder: 3, icon: 'standoff' },
-  });
-  const catGbox = await prisma.category.create({
-    data: { name: 'СЕРТИФИКАТ (GBox)', slug: 'gbox-certificate', description: 'Сертификаты GBox', sortOrder: 4, icon: 'gbox' },
-  });
-  const catPanel = await prisma.category.create({
-    data: { name: 'ПАНЕЛЬ ОТ ЧИТОВ', slug: 'panel', description: 'Панели управления читами', sortOrder: 5, icon: 'panel' },
+  const catNew = await prisma.category.create({
+    data: { name: 'Новинки', slug: 'new', description: 'Новые товары', sortOrder: 2, icon: 'new' },
   });
 
-  // Subcategories
-  const subPubgNoRoot = await prisma.category.create({
-    data: { name: 'Android • Без Рут', slug: 'pubg-android-no-root', description: 'PUBG на Android без Root', sortOrder: 1, parentId: catPubg.id, icon: 'android' },
-  });
-  const subPubgRoot = await prisma.category.create({
-    data: { name: 'Android • Рут', slug: 'pubg-android-root', description: 'PUBG на Android с Root', sortOrder: 2, parentId: catPubg.id, icon: 'android-root' },
-  });
-  const subPubgIos = await prisma.category.create({
-    data: { name: 'iOS • iPad • iPhone', slug: 'pubg-ios', description: 'PUBG на iOS', sortOrder: 3, parentId: catPubg.id, icon: 'ios' },
-  });
-  const subMlIos = await prisma.category.create({
-    data: { name: 'iOS', slug: 'ml-ios', description: 'Mobile Legends на iOS', sortOrder: 1, parentId: catMl.id, icon: 'ios' },
-  });
-  const subStandoffRoot = await prisma.category.create({
-    data: { name: 'Android • Рут', slug: 'standoff-android-root', description: 'Standoff 2 на Android с Root', sortOrder: 1, parentId: catStandoff.id, icon: 'android-root' },
-  });
-
-  console.log('Categories and subcategories created.');
+  console.log('Categories created.');
 
   // ─── Products ─────────────────────────────────────────────────────────────
-  // PUBG products (under main PUBG category, platform-specific)
-  const zoonMod = await prisma.product.create({
-    data: { name: 'Zoon mod', slug: 'zoon-mod', description: 'Премиум чит для PUBG с широким функционалом', categoryId: catPubg.id, platform: Platform.Android_NoRoot, sortOrder: 1 },
+  const product1 = await prisma.product.create({
+    data: { name: 'Sample Product 1', slug: 'sample-product-1', description: 'Описание товара 1', categoryId: catPopular.id, sortOrder: 1 },
   });
-  const jarvis = await prisma.product.create({
-    data: { name: 'Jarvis', slug: 'jarvis', description: 'Многофункциональный чит для PUBG', categoryId: catPubg.id, platform: Platform.Android_NoRoot, sortOrder: 2 },
+  const product2 = await prisma.product.create({
+    data: { name: 'Sample Product 2', slug: 'sample-product-2', description: 'Описание товара 2', categoryId: catPopular.id, sortOrder: 2 },
   });
-  const zMod = await prisma.product.create({
-    data: { name: 'Z Mod', slug: 'z-mod', description: 'Продвинутый чит для PUBG', categoryId: catPubg.id, platform: Platform.Android_NoRoot, sortOrder: 3 },
-  });
-  const zoloCheat = await prisma.product.create({
-    data: { name: 'ZoloCheat', slug: 'zolo-cheat', description: 'Профессиональный софт для PUBG', categoryId: catPubg.id, platform: Platform.Android_Root, sortOrder: 4 },
-  });
-
-  // ML products
-  const fluorite = await prisma.product.create({
-    data: { name: 'Fluorite', slug: 'fluorite', description: 'Чит для Mobile Legends с автозапуском и скилл-шотами', categoryId: catMl.id, platform: Platform.iOS, sortOrder: 1 },
-  });
-
-  // Standoff products
-  const cyrax = await prisma.product.create({
-    data: { name: 'Cyrax', slug: 'cyrax', description: 'Чит для Standoff 2 с AIM и ESP', categoryId: catStandoff.id, platform: Platform.Android_Root, sortOrder: 1 },
-  });
-
-  // GBox products
-  const gboxLite = await prisma.product.create({
-    data: { name: 'GBox LITE', slug: 'gbox-lite', description: 'Базовый сертификат GBox', categoryId: catGbox.id, sortOrder: 1 },
-  });
-  const gboxPremium = await prisma.product.create({
-    data: { name: 'GBox PREMIUM', slug: 'gbox-premium', description: 'Премиум сертификат GBox', categoryId: catGbox.id, sortOrder: 2 },
-  });
-
-  // Panel products
-  const premiumPanel = await prisma.product.create({
-    data: { name: 'Premium Panel', slug: 'premium-panel', description: 'Премиум панель управления читами', categoryId: catPanel.id, platform: Platform.Panel, sortOrder: 1 },
+  const product3 = await prisma.product.create({
+    data: { name: 'Sample Product 3', slug: 'sample-product-3', description: 'Описание товара 3', categoryId: catNew.id, sortOrder: 1 },
   });
 
   console.log('Products created.');
 
   // ─── Tariffs ──────────────────────────────────────────────────────────────
-  // Zoon mod tariffs
   await prisma.productTariff.createMany({
     data: [
-      { productId: zoonMod.id, name: TariffName.DAY_1, days: 1, price: 150 },
-      { productId: zoonMod.id, name: TariffName.DAY_3, days: 3, price: 350 },
-      { productId: zoonMod.id, name: TariffName.DAY_7, days: 7, price: 600 },
-      { productId: zoonMod.id, name: TariffName.DAY_30, days: 30, price: 1500 },
-    ],
-  });
-
-  // Jarvis tariffs
-  await prisma.productTariff.createMany({
-    data: [
-      { productId: jarvis.id, name: TariffName.DAY_1, days: 1, price: 200 },
-      { productId: jarvis.id, name: TariffName.DAY_3, days: 3, price: 450 },
-      { productId: jarvis.id, name: TariffName.DAY_7, days: 7, price: 800 },
-      { productId: jarvis.id, name: TariffName.DAY_30, days: 30, price: 2000 },
-    ],
-  });
-
-  // Z Mod tariffs
-  await prisma.productTariff.createMany({
-    data: [
-      { productId: zMod.id, name: TariffName.DAY_1, days: 1, price: 180 },
-      { productId: zMod.id, name: TariffName.DAY_3, days: 3, price: 400 },
-      { productId: zMod.id, name: TariffName.DAY_7, days: 7, price: 700 },
-      { productId: zMod.id, name: TariffName.DAY_30, days: 30, price: 1800 },
-    ],
-  });
-
-  // ZoloCheat tariffs
-  await prisma.productTariff.createMany({
-    data: [
-      { productId: zoloCheat.id, name: TariffName.DAY_1, days: 1, price: 250 },
-      { productId: zoloCheat.id, name: TariffName.DAY_3, days: 3, price: 550 },
-      { productId: zoloCheat.id, name: TariffName.DAY_7, days: 7, price: 1000 },
-      { productId: zoloCheat.id, name: TariffName.DAY_30, days: 30, price: 2500 },
-    ],
-  });
-
-  // Fluorite tariffs
-  await prisma.productTariff.createMany({
-    data: [
-      { productId: fluorite.id, name: TariffName.DAY_1, days: 1, price: 200 },
-      { productId: fluorite.id, name: TariffName.DAY_3, days: 3, price: 500 },
-      { productId: fluorite.id, name: TariffName.DAY_7, days: 7, price: 900 },
-      { productId: fluorite.id, name: TariffName.DAY_30, days: 30, price: 2200 },
-    ],
-  });
-
-  // Cyrax tariffs
-  await prisma.productTariff.createMany({
-    data: [
-      { productId: cyrax.id, name: TariffName.DAY_1, days: 1, price: 180 },
-      { productId: cyrax.id, name: TariffName.DAY_3, days: 3, price: 400 },
-      { productId: cyrax.id, name: TariffName.DAY_7, days: 7, price: 750 },
-      { productId: cyrax.id, name: TariffName.DAY_30, days: 30, price: 1900 },
-    ],
-  });
-
-  // GBox LITE tariffs
-  await prisma.productTariff.createMany({
-    data: [
-      { productId: gboxLite.id, name: TariffName.DAY_30, days: 30, price: 1500 },
-      { productId: gboxLite.id, name: TariffName.DAY_60, days: 60, price: 2500 },
-    ],
-  });
-
-  // GBox PREMIUM tariffs
-  await prisma.productTariff.createMany({
-    data: [
-      { productId: gboxPremium.id, name: TariffName.DAY_30, days: 30, price: 2500 },
-      { productId: gboxPremium.id, name: TariffName.DAY_60, days: 60, price: 4000 },
-    ],
-  });
-
-  // Premium Panel tariffs
-  await prisma.productTariff.createMany({
-    data: [
-      { productId: premiumPanel.id, name: TariffName.DAY_1, days: 1, price: 300 },
-      { productId: premiumPanel.id, name: TariffName.DAY_7, days: 7, price: 1500 },
-      { productId: premiumPanel.id, name: TariffName.DAY_30, days: 30, price: 4000 },
+      { productId: product1.id, name: TariffName.DAY_1, days: 1, price: 100 },
+      { productId: product1.id, name: TariffName.DAY_7, days: 7, price: 500 },
+      { productId: product2.id, name: TariffName.DAY_1, days: 1, price: 150 },
+      { productId: product2.id, name: TariffName.DAY_7, days: 7, price: 700 },
+      { productId: product3.id, name: TariffName.DAY_1, days: 1, price: 200 },
+      { productId: product3.id, name: TariffName.DAY_30, days: 30, price: 2000 },
     ],
   });
 
   console.log('Tariffs created.');
 
-  // ─── Cheat Statuses ───────────────────────────────────────────────────────
-  const cheatStatuses = [
-    { gameName: 'PUBG MOBILE', cheatName: 'Zoon mod', platform: 'Android', status: CheatStatusEnum.SAFE },
-    { gameName: 'PUBG MOBILE', cheatName: 'Jarvis', platform: 'Android', status: CheatStatusEnum.SAFE },
-    { gameName: 'PUBG MOBILE', cheatName: 'Z Mod', platform: 'Android', status: CheatStatusEnum.RISKY },
-    { gameName: 'PUBG MOBILE', cheatName: 'ZoloCheat', platform: 'Android', status: CheatStatusEnum.SAFE },
-    { gameName: 'MOBILE LEGENDS', cheatName: 'Fluorite', platform: 'iOS', status: CheatStatusEnum.SAFE },
-    { gameName: 'СТЭНДОФФ', cheatName: 'Cyrax', platform: 'Android', status: CheatStatusEnum.SAFE },
-    { gameName: 'СЕРТИФИКАТ (GBox)', cheatName: 'GBox LITE', platform: null, status: CheatStatusEnum.SAFE },
-    { gameName: 'СЕРТИФИКАТ (GBox)', cheatName: 'GBox PREMIUM', platform: null, status: CheatStatusEnum.SAFE },
-    { gameName: 'ПАНЕЛЬ ОТ ЧИТОВ', cheatName: 'Premium Panel', platform: 'Panel', status: CheatStatusEnum.SAFE },
-  ];
-
-  for (const cs of cheatStatuses) {
-    await prisma.cheatStatus.create({ data: cs });
-  }
-  console.log('Cheat statuses created.');
-
   // ─── Payment Methods ──────────────────────────────────────────────────────
   const paymentMethods = [
-    { name: 'СБП', code: 'sbp', config: { commission: 0 }, sortOrder: 1 },
-    { name: 'Карта РФ', code: 'card_rf', config: { commission: 2 }, sortOrder: 2 },
-    { name: 'Карта УКР', code: 'card_ua', config: { commission: 3 }, sortOrder: 3 },
-    { name: 'MasterCard', code: 'mastercard', config: { commission: 2.5 }, sortOrder: 4 },
-    { name: 'CryptoBot', code: 'cryptobot', config: { commission: 1 }, sortOrder: 5 },
-    { name: 'PayPal', code: 'paypal', config: { commission: 4 }, sortOrder: 6 },
-    { name: 'Звёзды', code: 'stars', config: { commission: 0 }, sortOrder: 7 },
+    { name: 'FreeKassa', code: 'freekassa', isActive: true, config: {} },
+    { name: 'Карта РФ', code: 'card_rf', isActive: true, config: {} },
+    { name: 'Карта УКР', code: 'card_ua', isActive: true, config: {} },
+    { name: 'MasterCard', code: 'mastercard', isActive: true, config: {} },
+    { name: 'CryptoBot', code: 'cryptobot', isActive: true, config: {} },
+    { name: 'PayPal', code: 'paypal', isActive: true, config: {} },
   ];
 
   for (const pm of paymentMethods) {
@@ -337,6 +165,13 @@ async function main() {
     { key: 'referralPercent', value: 5 },
     { key: 'offer', value: 'Настоящая оферта является официальным предложением интернет-магазина THE BEST MODS. Оплачивая товар, вы соглашаетесь с условиями настоящей оферты.' },
     { key: 'policy', value: 'Политика конфиденциальности: ваши данные не передаются третьим лицам и используются только для обеспечения работы сервиса.' },
+    { key: 'card_ua_number', value: '4441111032086963' },
+    { key: 'card_ua_bank', value: 'МоноБанк' },
+    { key: 'card_ua_name', value: 'Назаренко Денис' },
+    { key: 'card_mastercard_number', value: '5522099379504574' },
+    { key: 'card_mastercard_name', value: 'Huseynov Subhan Zaur' },
+    { key: 'paypal_email', value: 'npro87401@gmail.com' },
+    { key: 'paypal_name', value: 'Maksim Kantya' },
   ];
 
   for (const s of systemSettings) {

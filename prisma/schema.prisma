@@ -87,6 +87,7 @@ model User {
   referralsMade        Referral[]             @relation("Referrer")
   referralsReceived    Referral[]             @relation("Referred")
   reviews              Review[]
+  reviewLikes          ReviewLike[]
   supportTickets       SupportTicket[]
   ticketMessages       TicketMessage[]
   favoriteProducts     FavoriteProduct[]
@@ -308,9 +309,26 @@ model Review {
   isApproved Boolean  @default(false)
   createdAt  DateTime @default(now())
 
+  likes ReviewLike[]
+
   @@index([userId])
   @@index([productId])
   @@map("reviews")
+}
+
+model ReviewLike {
+  id        String   @id @default(cuid()) @db.VarChar(255)
+  reviewId  String   @db.VarChar(255)
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  userId    String   @db.VarChar(255)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   @db.VarChar(10)
+  createdAt DateTime @default(now())
+
+  @@unique([reviewId, userId])
+  @@index([reviewId])
+  @@index([userId])
+  @@map("review_likes")
 }
 
 model SupportTicket {

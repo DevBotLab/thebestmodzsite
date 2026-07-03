@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { Shield, Zap, HeadphonesIcon, Gift } from 'lucide-react'
 import { BannerCarousel } from '@/components/ui/BannerCarousel'
-import { StatsGraph } from '@/components/ui/StatsGraph'
 import { GlassCard } from '@/components/ui/GlassCard'
 
 const advantages = [
@@ -32,8 +31,6 @@ export default function HomePage() {
       </section>
 
       <BannerCarousel />
-
-      <StatsGraph />
 
       <section>
         <h2 className="text-2xl font-bold text-white mb-4">Почему мы?</h2>

@@ -5,6 +5,7 @@ import { success, error, unauthorized } from '@/lib/api-response'
 import { reviewCreateSchema } from '@/lib/validations'
 
 export async function GET(req: NextRequest) {
+  const session = await getSession()
   const cursor = req.nextUrl.searchParams.get('cursor')
   const limit = Math.min(Number(req.nextUrl.searchParams.get('limit')) || 20, 50)
   const productId = req.nextUrl.searchParams.get('productId')
@@ -26,7 +27,38 @@ export async function GET(req: NextRequest) {
   const items = hasMore ? reviews.slice(0, limit) : reviews
   const nextCursor = hasMore ? items[items.length - 1]?.id : null
 
-  return success({ items, nextCursor, hasMore })
+  const reviewIds = items.map(r => r.id)
+  const likeGroups = await prisma.reviewLike.groupBy({
+    by: ['reviewId', 'type'],
+    where: { reviewId: { in: reviewIds } },
+    _count: { id: true },
+  })
+
+  const countMap = new Map<string, { likes: number; dislikes: number }>()
+  for (const id of reviewIds) countMap.set(id, { likes: 0, dislikes: 0 })
+  for (const g of likeGroups) {
+    const entry = countMap.get(g.reviewId)!
+    if (g.type === 'LIKE') entry.likes = g._count.id
+    else entry.dislikes = g._count.id
+  }
+
+  let userLikeMap = new Map<string, string>()
+  if (session) {
+    const userLikes = await prisma.reviewLike.findMany({
+      where: { reviewId: { in: reviewIds }, userId: session.userId },
+      select: { reviewId: true, type: true },
+    })
+    for (const ul of userLikes) userLikeMap.set(ul.reviewId, ul.type)
+  }
+
+  const enriched = items.map(r => ({
+    ...r,
+    likes: countMap.get(r.id)?.likes ?? 0,
+    dislikes: countMap.get(r.id)?.dislikes ?? 0,
+    userLike: userLikeMap.get(r.id) ?? null,
+  }))
+
+  return success({ items: enriched, nextCursor, hasMore })
 }
 
 export async function POST(req: NextRequest) {
