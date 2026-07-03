@@ -60,7 +60,9 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           setPolling(false)
           setStep('complete')
           const captchaToken2 = await executeRecaptcha('auth_complete')
-          const completeRes = await api('/api/auth', { method: 'POST', body: JSON.stringify({ code, captchaToken: captchaToken2 }) })
+          const body: Record<string, unknown> = { code }
+          if (captchaToken2) body.captchaToken = captchaToken2
+          const completeRes = await api('/api/auth', { method: 'POST', body: JSON.stringify(body) })
           if (!completeRes.ok) {
             const errData = await completeRes.json()
             toast.error(errData.error || 'Ошибка авторизации')

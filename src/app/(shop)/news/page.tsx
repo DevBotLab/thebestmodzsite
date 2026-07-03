@@ -88,7 +88,7 @@ export default function NewsPage() {
         </div>
         <div className="text-center py-20">
           <p className="text-red-400">{error}</p>
-          <button onClick={() => { setError(''); setInitialLoading(true); loadMore() }} className="btn-primary mt-4">
+          <button onClick={() => { setError(''); setCursor(null); setHasMore(true); setTimeout(() => loadMore(), 0) }} className="btn-primary mt-4">
             Повторить
           </button>
         </div>

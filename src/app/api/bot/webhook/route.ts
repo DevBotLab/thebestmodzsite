@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getRedis } from '@/lib/redis'
-import { success } from '@/lib/api-response'
 
 export const dynamic = 'force-dynamic'
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || ''
 const ADMIN_IDS = (process.env.ADMIN_TELEGRAM_IDS || '').split(',').map(id => id.trim()).filter(Boolean)
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || ''
+const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET
 
 async function sendTelegramMessage(chatId: string | number, text: string) {
   try {
@@ -106,13 +106,20 @@ function formatTimeRemaining(createdAt: number | string): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'thebestmods_secret_2024'
-    const secretToken = req.headers.get('x-telegram-bot-api-secret-token')
-    if (secretToken && secretToken !== WEBHOOK_SECRET) {
-      return NextResponse.json({ ok: true })
+    if (WEBHOOK_SECRET) {
+      const secretToken = req.headers.get('x-telegram-bot-api-secret-token')
+      if (secretToken && secretToken !== WEBHOOK_SECRET) {
+        return NextResponse.json({ ok: true })
+      }
     }
 
-    const update = await req.json()
+    const rawText = await req.text()
+    let update: any
+    try {
+      update = JSON.parse(rawText)
+    } catch {
+      return NextResponse.json({ ok: true })
+    }
 
     if (update.callback_query) {
       const cb = update.callback_query
@@ -132,7 +139,7 @@ export async function POST(req: NextRequest) {
           `4. Отправьте его сюда: /auth &lt;код&gt;\n\n` +
           `Пример: <code>/auth a1b2c3d4</code>`
         )
-        return success({ ok: true })
+        return NextResponse.json({ ok: true })
       }
 
       if (callbackData.startsWith('check_payment:')) {
@@ -142,7 +149,7 @@ export async function POST(req: NextRequest) {
         if (!paymentData) {
           await answerCallbackQuery(callbackQueryId, '❌ Платёж не найден')
           await editMessageText(chatId, messageId, '❌ <b>Платёж не найден.</b>')
-          return success({ ok: true })
+          return NextResponse.json({ ok: true })
         }
 
         let payment: Record<string, unknown>
@@ -151,7 +158,7 @@ export async function POST(req: NextRequest) {
         } catch {
           await answerCallbackQuery(callbackQueryId, '❌ Ошибка данных')
           await editMessageText(chatId, messageId, '❌ <b>Ошибка при проверке платежа.</b>')
-          return success({ ok: true })
+          return NextResponse.json({ ok: true })
         }
 
         if (payment.status === 'paid') {
@@ -196,7 +203,7 @@ export async function POST(req: NextRequest) {
           )
         }
 
-        return success({ ok: true })
+        return NextResponse.json({ ok: true })
       }
 
       if (callbackData.startsWith('cancel_payment:')) {
@@ -210,7 +217,7 @@ export async function POST(req: NextRequest) {
           } catch {
             await answerCallbackQuery(callbackQueryId, '❌ Ошибка')
             await editMessageText(chatId, messageId, '❌ <b>Ошибка при отмене платежа.</b>')
-            return success({ ok: true })
+            return NextResponse.json({ ok: true })
           }
 
           payment.status = 'cancelled'
@@ -224,15 +231,15 @@ export async function POST(req: NextRequest) {
           `❌ <b>Платёж отменён.</b>\n\nЕсли вы передумали, можете создать новый платёж на сайте.`
         )
 
-        return success({ ok: true })
+        return NextResponse.json({ ok: true })
       }
 
       await answerCallbackQuery(callbackQueryId)
-      return success({ ok: true })
+      return NextResponse.json({ ok: true })
     }
 
     const message = update.message
-    if (!message || !message.text) return success({ ok: true })
+    if (!message || !message.text) return NextResponse.json({ ok: true })
 
     const chatId = message.chat.id
     const text = message.text.trim()
@@ -258,7 +265,7 @@ export async function POST(req: NextRequest) {
           [{ text: '🔐 Авторизация', callback_data: 'auth_instructions' }],
         ]
       )
-      return success({ ok: true })
+      return NextResponse.json({ ok: true })
     }
 
     if (text.startsWith('/auth ')) {
@@ -267,13 +274,13 @@ export async function POST(req: NextRequest) {
 
       if (!storedTgId) {
         await sendTelegramMessage(chatId, '❌ Код недействителен или истёк. Запросите новый код на сайте.')
-        return success({ ok: true })
+        return NextResponse.json({ ok: true })
       }
 
       const tgId = String(from?.id || '')
       if (storedTgId !== tgId) {
         await sendTelegramMessage(chatId, '❌ Этот код предназначен для другого аккаунта Telegram.')
-        return success({ ok: true })
+        return NextResponse.json({ ok: true })
       }
 
       const existingUser = await prisma.user.findUnique({ where: { tgId } })
@@ -305,7 +312,7 @@ export async function POST(req: NextRequest) {
         `Перейдите на сайт, чтобы продолжить:\n${SITE_URL}`
       )
 
-      return success({ ok: true })
+      return NextResponse.json({ ok: true })
     }
 
     if (text.startsWith('/pay ')) {
@@ -317,7 +324,7 @@ export async function POST(req: NextRequest) {
           chatId,
           '❌ Платёж не найден. Проверьте правильность ключа.'
         )
-        return success({ ok: true })
+        return NextResponse.json({ ok: true })
       }
 
       let payment: Record<string, unknown>
@@ -325,7 +332,7 @@ export async function POST(req: NextRequest) {
         payment = JSON.parse(paymentData as string)
       } catch {
         await sendTelegramMessage(chatId, '❌ Ошибка при получении информации о платеже.')
-        return success({ ok: true })
+        return NextResponse.json({ ok: true })
       }
 
       if (payment.status === 'paid') {
@@ -333,17 +340,17 @@ export async function POST(req: NextRequest) {
           chatId,
           `✅ <b>Платёж уже оплачен!</b>\n\nСумма: ${payment.amount_rub} RUB / ${payment.amount_usdt} USDT`
         )
-        return success({ ok: true })
+        return NextResponse.json({ ok: true })
       }
 
       if (payment.status === 'cancelled') {
         await sendTelegramMessage(chatId, `❌ <b>Платёж отменён.</b>`)
-        return success({ ok: true })
+        return NextResponse.json({ ok: true })
       }
 
       if (payment.status === 'expired') {
         await sendTelegramMessage(chatId, `⏰ <b>Время оплаты истекло.</b>`)
-        return success({ ok: true })
+        return NextResponse.json({ ok: true })
       }
 
       const createdAt = (typeof payment.created_at === 'number' ? payment.created_at : payment.created_at as string) || Date.now()
@@ -364,12 +371,12 @@ export async function POST(req: NextRequest) {
         ]
       )
 
-      return success({ ok: true })
+      return NextResponse.json({ ok: true })
     }
 
     if (from && ADMIN_IDS.includes(String(from.id))) {
       await sendTelegramMessage(chatId, `✅ Сообщение получено.`)
-      return success({ ok: true })
+      return NextResponse.json({ ok: true })
     }
 
     await sendTelegramMessage(
@@ -381,9 +388,9 @@ export async function POST(req: NextRequest) {
       `💬 По вопросам обращайтесь в поддержку на сайте.`
     )
 
-    return success({ ok: true })
+    return NextResponse.json({ ok: true })
   } catch (e) {
     console.error('Webhook error:', e)
-    return success({ ok: true })
+    return NextResponse.json({ ok: true })
   }
 }

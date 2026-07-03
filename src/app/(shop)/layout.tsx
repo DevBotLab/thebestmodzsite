@@ -1,6 +1,7 @@
 'use client'
 
 import { Header } from '@/components/layout/Header'
+import { CookieConsent } from '@/components/ui/CookieConsent'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { Footer } from '@/components/layout/Footer'
 
@@ -11,6 +12,7 @@ export default function ShopLayout({ children }: { children: React.ReactNode }) 
       <main className="container mx-auto px-4 py-6 flex-1">{children}</main>
       <Footer />
       <BottomNav />
+      <CookieConsent />
     </div>
   )
 }
