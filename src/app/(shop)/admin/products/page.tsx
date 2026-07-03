@@ -11,7 +11,7 @@ interface Product {
   id: string
   name: string
   slug: string
-  category: { name: string }
+  category: { id: string; name: string }
   platform: string | null
   sortOrder: number
   createdAt: string
