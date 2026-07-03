@@ -69,9 +69,9 @@ export default function AdminDashboardPage() {
   const statCards = [
     { label: 'Пользователей', value: data.stats.totalUsers, icon: Users, color: 'text-purple-400' },
     { label: 'Заказов всего', value: data.stats.totalOrders, icon: ShoppingCart, color: 'text-blue-400' },
-    { label: 'Доход сегодня', value: ${data.stats.revenueToday.toLocaleString()} ₽, icon: DollarSign, color: 'text-lime-400' },
-    { label: 'Доход за неделю', value: ${data.stats.revenueWeek.toLocaleString()} ₽, icon: TrendingUp, color: 'text-green-400' },
-    { label: 'Доход за месяц', value: ${data.stats.revenueMonth.toLocaleString()} ₽, icon: TrendingUp, color: 'text-yellow-400' },
+    { label: 'Доход сегодня', value: `${data.stats.revenueToday.toLocaleString()} ₽`, icon: DollarSign, color: 'text-lime-400' },
+    { label: 'Доход за неделю', value: `${data.stats.revenueWeek.toLocaleString()} ₽`, icon: TrendingUp, color: 'text-green-400' },
+    { label: 'Доход за месяц', value: `${data.stats.revenueMonth.toLocaleString()} ₽`, icon: TrendingUp, color: 'text-yellow-400' },
     { label: 'Онлайн', value: data.stats.onlineUsers, icon: Activity, color: 'text-cyan-400' },
   ]
 
@@ -83,7 +83,7 @@ export default function AdminDashboardPage() {
           return (
             <GlassCard key={card.label}>
               <div className="flex items-center gap-3">
-                <Icon className={w-8 h-8 } />
+                <Icon className="w-8 h-8" />
                 <div>
                   <p className="text-xs text-gray-400">{card.label}</p>
                   <p className="text-xl font-bold text-white">{card.value}</p>
@@ -138,7 +138,7 @@ export default function AdminDashboardPage() {
                   <td className="py-2 px-3 text-gray-300">{order.product.name}</td>
                   <td className="py-2 px-3 text-right text-lime-400">{order.totalPrice.toLocaleString()} ₽</td>
                   <td className="py-2 px-3">
-                    <span className={${statusColors[order.status] || 'text-gray-400'} text-xs font-medium}>
+                    <span className={`${statusColors[order.status] || 'text-gray-400'} text-xs font-medium`}>
                       {statusLabels[order.status] || order.status}
                     </span>
                   </td>

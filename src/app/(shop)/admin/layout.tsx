@@ -62,12 +62,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen bg-dark">
       <div className="flex">
-        <aside className={
-          fixed lg:sticky top-0 left-0 z-50 h-screen w-64 flex-shrink-0
-          bg-dark-100 border-r border-white/5 overflow-y-auto
-          transition-transform duration-300
-          
-        }>
+        <aside className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-64 flex-shrink-0 bg-dark-100 border-r border-white/5 overflow-y-auto transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
           <div className="p-4 border-b border-white/5 flex items-center justify-between">
             <Link href="/admin" className="text-lg font-heading text-lime-400">Admin</Link>
             <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-400 hover:text-white">
@@ -83,7 +78,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   key={item.href}
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
-                  className={lex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all }
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${isActive ? 'bg-purple-500/10 text-purple-400' : 'text-gray-400 hover:text-white hover:bg-dark-200'}`}
                 >
                   <Icon className="w-4 h-4 flex-shrink-0" />
                   <span>{item.label}</span>
