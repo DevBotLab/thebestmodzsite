@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { getSession, checkIsAdmin } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { success, unauthorized, forbidden, validationError } from '@/lib/api-response'
+import { Prisma } from '@prisma/client'
 import { z } from 'zod'
 
 const updatePaymentMethodSchema = z.object({
@@ -36,6 +37,10 @@ export async function PUT(req: NextRequest) {
   const { id, ...data } = parsed.data
 
   const method = await prisma.paymentMethod.update({
+    data: {
+      ...data,
+      config: data.config as Prisma.InputJsonValue | undefined,
+    },
     where: { id },
     data,
   })

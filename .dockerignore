@@ -1,0 +1,12 @@
+node_modules
+.git
+.gitignore
+.env
+.env.example
+.env.documentation.md
+*.md
+README.md
+.vscode
+.idea
+*.tsbuildinfo
+next-env.d.ts
