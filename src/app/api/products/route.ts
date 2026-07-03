@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { Prisma } from '@prisma/client'
+import { Prisma, Platform } from '@prisma/client'
 import { success } from '@/lib/api-response'
 
 export async function GET(req: NextRequest) {
@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   const cursor = searchParams.get('cursor')
   const limit = Math.min(Number(searchParams.get('limit')) || 20, 50)
 
-  const where = { ...(categoryId ? { categoryId } : {}), ...(platform ? { platform } : {}) }
+  const where = { ...(categoryId ? { categoryId } : {}), ...(platform ? { platform: platform as Platform } : {}) }
 
   let orderBy: Prisma.ProductOrderByWithRelationInput = { sortOrder: 'asc' }
   if (sortBy === 'popularity') orderBy = { sortOrder: 'asc' }
