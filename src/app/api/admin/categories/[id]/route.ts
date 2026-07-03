@@ -86,7 +86,7 @@ async function getChildCategoryIds(parentId: string): Promise<Set<string>> {
   for (const child of children) {
     ids.add(child.id)
     const grandChildren = await getChildCategoryIds(child.id)
-    for (const gc of grandChildren) ids.add(gc)
+    grandChildren.forEach((gc) => ids.add(gc))
   }
   return ids
 }
