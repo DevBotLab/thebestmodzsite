@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
     if (user.isBlocked) return error('Ваш аккаунт заблокирован', 403)
 
-    const tokens = await createToken({ id: user.id, isAdmin: user.isAdmin })
+    const tokens = await createToken({ id: user.id, tgId: user.tgId, isAdmin: user.isAdmin })
     const res = success({ user: mapUser(user) })
 
     setAuthCookies(
