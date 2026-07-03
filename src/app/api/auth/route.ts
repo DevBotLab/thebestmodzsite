@@ -4,6 +4,7 @@ import { getRedis } from '@/lib/redis'
 import { createToken, setAuthCookies } from '@/lib/auth'
 import { loginSchema } from '@/lib/validations'
 import { success, error, unauthorized } from '@/lib/api-response'
+import { verifyRecaptcha } from '@/lib/recaptcha'
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,7 +12,11 @@ export async function POST(req: NextRequest) {
     const parsed = loginSchema.safeParse(body)
     if (!parsed.success) return error('Неверный код', 400)
 
-    const { code } = parsed.data
+    const { code, captchaToken } = parsed.data
+    if (captchaToken) {
+      const valid = await verifyRecaptcha(captchaToken)
+      if (!valid) return error('Проверка не пройдена', 400)
+    }
     const tgId = await getRedis().get(`auth_code:${code}`)
     if (!tgId) return unauthorized('Код недействителен или истёк')
 

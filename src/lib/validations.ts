@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 export const loginSchema = z.object({
   code: z.string().min(1, 'Code is required'),
+  captchaToken: z.string().optional(),
 })
 
 export const createTicketSchema = z.object({
@@ -81,9 +82,10 @@ export const topUpSchema = z.object({
 })
 
 export const reviewCreateSchema = z.object({
-  text: z.string().min(1).max(1000),
-  rating: z.number().int().min(1).max(5),
-  productId: z.string().optional().nullable(),
+  text: z.string().min(10, 'Текст должен быть минимум 10 символов').max(1000),
+  rating: z.number().min(1).max(5),
+  productId: z.string().min(1, 'Укажите товар'),
+  captchaToken: z.string().optional(),
 })
 
 export const updateProfileSchema = z.object({

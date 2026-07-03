@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import toast from 'react-hot-toast'
-import { Plus, X } from 'lucide-react'
+import { Plus, X, Pencil } from 'lucide-react'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { StarLoader } from '@/components/ui/StarLoader'
 
@@ -29,6 +29,9 @@ export default function AdminCheatsPage() {
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [form, setForm] = useState({ gameName: '', cheatName: '', platform: '', status: 'SAFE' })
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState({ gameName: '', cheatName: '', platform: '' })
+  const editRef = useRef<HTMLInputElement>(null)
 
   const load = () => {
     setLoading(true)
@@ -58,6 +61,31 @@ export default function AdminCheatsPage() {
     } else {
       toast.error(data.error || 'Ошибка')
       setCheats((prevCheats) => prevCheats.map((c) => c.id === cheatId ? { ...c, status: prev || c.status } : c))
+    }
+  }
+
+  const startEdit = (cheat: Cheat) => {
+    setEditingId(cheat.id)
+    setEditForm({ gameName: cheat.gameName, cheatName: cheat.cheatName, platform: cheat.platform || '' })
+    setTimeout(() => editRef.current?.focus(), 50)
+  }
+
+  const handleInlineSave = async (cheatId: string) => {
+    if (!editForm.gameName || !editForm.cheatName) { toast.error('Заполните обязательные поля'); return }
+    const prev = cheats.find(c => c.id === cheatId)
+    setCheats((prevCheats) => prevCheats.map((c) => c.id === cheatId ? { ...c, ...editForm } : c))
+    setEditingId(null)
+    const res = await fetch(`/api/admin/cheats/${cheatId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(editForm),
+    })
+    const data = await res.json()
+    if (data.success) {
+      toast.success('Чит обновлён')
+    } else {
+      toast.error(data.error || 'Ошибка')
+      if (prev) setCheats((prevCheats) => prevCheats.map((c) => c.id === cheatId ? { ...prev } : c))
     }
   }
 
@@ -101,20 +129,51 @@ export default function AdminCheatsPage() {
           <tbody>
             {cheats.map((cheat) => (
               <tr key={cheat.id} className="border-b border-white/5 hover:bg-dark-200">
-                <td className="py-3 px-4 text-white font-medium">{cheat.gameName}</td>
-                <td className="py-3 px-4 text-gray-300">{cheat.cheatName}</td>
-                <td className="py-3 px-4 text-gray-300">{cheat.platform || '—'}</td>
                 <td className="py-3 px-4">
-                  <select
-                    value={cheat.status}
-                    onChange={(e) => handleStatusChange(cheat.id, e.target.value)}
-                    className={`text-sm font-medium rounded-lg px-2 py-1 border-0 cursor-pointer ${statusConfig[cheat.status]?.color || 'text-gray-400'}`}
-                    style={{ background: 'rgba(255,255,255,0.03)' }}
-                  >
-                    {statuses.map((s) => (
-                      <option key={s} value={s}>{statusConfig[s]?.emoji} {statusConfig[s]?.label}</option>
-                    ))}
-                  </select>
+                  {editingId === cheat.id ? (
+                    <input ref={editRef} value={editForm.gameName} onChange={(e) => setEditForm({ ...editForm, gameName: e.target.value })}
+                      className="w-full bg-dark-200 border border-white/10 rounded px-2 py-1 text-sm text-white" />
+                  ) : (
+                    <span className="text-white font-medium cursor-pointer hover:text-lime-400 flex items-center gap-1"
+                      onClick={() => startEdit(cheat)}>{cheat.gameName} <Pencil className="w-3 h-3 opacity-40" /></span>
+                  )}
+                </td>
+                <td className="py-3 px-4">
+                  {editingId === cheat.id ? (
+                    <input value={editForm.cheatName} onChange={(e) => setEditForm({ ...editForm, cheatName: e.target.value })}
+                      className="w-full bg-dark-200 border border-white/10 rounded px-2 py-1 text-sm text-white" />
+                  ) : (
+                    <span className="text-gray-300 cursor-pointer hover:text-lime-400 flex items-center gap-1"
+                      onClick={() => startEdit(cheat)}>{cheat.cheatName} <Pencil className="w-3 h-3 opacity-40" /></span>
+                  )}
+                </td>
+                <td className="py-3 px-4">
+                  {editingId === cheat.id ? (
+                    <input value={editForm.platform} onChange={(e) => setEditForm({ ...editForm, platform: e.target.value })}
+                      className="w-full bg-dark-200 border border-white/10 rounded px-2 py-1 text-sm text-white" />
+                  ) : (
+                    <span className="text-gray-300 cursor-pointer hover:text-lime-400 flex items-center gap-1"
+                      onClick={() => startEdit(cheat)}>{cheat.platform || '—'} <Pencil className="w-3 h-3 opacity-40" /></span>
+                  )}
+                </td>
+                <td className="py-3 px-4">
+                  {editingId === cheat.id ? (
+                    <div className="flex gap-1">
+                      <button onClick={() => handleInlineSave(cheat.id)} className="text-xs bg-lime-500/20 text-lime-400 px-2 py-1 rounded">Save</button>
+                      <button onClick={() => setEditingId(null)} className="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded">Cancel</button>
+                    </div>
+                  ) : (
+                    <select
+                      value={cheat.status}
+                      onChange={(e) => handleStatusChange(cheat.id, e.target.value)}
+                      className={`text-sm font-medium rounded-lg px-2 py-1 border-0 cursor-pointer ${statusConfig[cheat.status]?.color || 'text-gray-400'}`}
+                      style={{ background: 'rgba(255,255,255,0.03)' }}
+                    >
+                      {statuses.map((s) => (
+                        <option key={s} value={s}>{statusConfig[s]?.emoji} {statusConfig[s]?.label}</option>
+                      ))}
+                    </select>
+                  )}
                 </td>
                 <td className="py-3 px-4 text-gray-400 text-xs">{new Date(cheat.updatedAt).toLocaleString()}</td>
               </tr>

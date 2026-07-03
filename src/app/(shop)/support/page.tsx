@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { MessageCircle, Plus, Circle, Clock, CheckCircle2 } from 'lucide-react'
+import { MessageCircle, Plus, Circle, Clock, CheckCircle2, Loader2 } from 'lucide-react'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { BackButton } from '@/components/layout/BackButton'
 import toast from 'react-hot-toast'
@@ -14,12 +14,6 @@ interface Ticket {
   createdAt: string
   lastMessage: string
 }
-
-const mockTickets: Ticket[] = [
-  { id: '1', subject: 'Проблема с ключом Jarvis', status: 'open', createdAt: '01.07.2026', lastMessage: '3 часа назад' },
-  { id: '2', subject: 'Вопрос по оплате', status: 'in_progress', createdAt: '28.06.2026', lastMessage: '1 день назад' },
-  { id: '3', subject: 'Смена тарифа', status: 'closed', createdAt: '20.06.2026', lastMessage: '10 дней назад' },
-]
 
 const statusIcons = {
   open: Circle,
@@ -40,19 +34,57 @@ const statusLabels: Record<string, string> = {
 }
 
 export default function SupportPage() {
+  const [tickets, setTickets] = useState<Ticket[]>([])
+  const [loading, setLoading] = useState(true)
   const [showCreate, setShowCreate] = useState(false)
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
+  const [creating, setCreating] = useState(false)
 
-  const createTicket = () => {
+  useEffect(() => {
+    fetchTickets()
+  }, [])
+
+  const fetchTickets = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/tickets')
+      if (!res.ok) throw new Error('No GET endpoint')
+      const data = await res.json()
+      setTickets(data.items || data || [])
+    } catch {
+      setTickets([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const createTicket = async () => {
     if (!subject || !message) {
       toast.error('Заполните все поля')
       return
     }
-    toast.success('Тикет создан!')
-    setShowCreate(false)
-    setSubject('')
-    setMessage('')
+    setCreating(true)
+    try {
+      const res = await fetch('/api/tickets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject, text: message }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || 'Ошибка')
+      }
+      toast.success('Тикет создан!')
+      setShowCreate(false)
+      setSubject('')
+      setMessage('')
+      fetchTickets()
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Ошибка создания тикета')
+    } finally {
+      setCreating(false)
+    }
   }
 
   return (
@@ -68,31 +100,42 @@ export default function SupportPage() {
         </div>
       </div>
 
-      <div className="space-y-3">
-        {mockTickets.map((ticket) => {
-          const StatusIcon = statusIcons[ticket.status]
-          return (
-            <Link key={ticket.id} href={`/support/${ticket.id}`}>
-              <GlassCard>
-                <div className="flex items-start gap-3">
-                  <StatusIcon className={`w-5 h-5 mt-1 ${statusColors[ticket.status]}`} />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-white truncate">{ticket.subject}</h3>
-                    <p className="text-sm text-gray-400">Создан: {ticket.createdAt}</p>
-                    <div className="flex items-center gap-3 mt-2">
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColors[ticket.status]} bg-white/5`}>
-                        {statusLabels[ticket.status]}
-                      </span>
-                      <span className="text-xs text-gray-500">{ticket.lastMessage}</span>
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
+        </div>
+      ) : tickets.length === 0 ? (
+        <div className="text-center py-20">
+          <MessageCircle className="w-12 h-12 text-gray-500 mx-auto mb-3" />
+          <p className="text-gray-400">У вас пока нет тикетов</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {tickets.map((ticket) => {
+            const StatusIcon = statusIcons[ticket.status]
+            return (
+              <Link key={ticket.id} href={`/support/${ticket.id}`}>
+                <GlassCard>
+                  <div className="flex items-start gap-3">
+                    <StatusIcon className={`w-5 h-5 mt-1 ${statusColors[ticket.status]}`} />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-white truncate">{ticket.subject}</h3>
+                      <p className="text-sm text-gray-400">Создан: {ticket.createdAt}</p>
+                      <div className="flex items-center gap-3 mt-2">
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColors[ticket.status]} bg-white/5`}>
+                          {statusLabels[ticket.status]}
+                        </span>
+                        <span className="text-xs text-gray-500">{ticket.lastMessage}</span>
+                      </div>
                     </div>
+                    <MessageCircle className="w-5 h-5 text-purple-400" />
                   </div>
-                  <MessageCircle className="w-5 h-5 text-purple-400" />
-                </div>
-              </GlassCard>
-            </Link>
-          )
-        })}
-      </div>
+                </GlassCard>
+              </Link>
+            )
+          })}
+        </div>
+      )}
 
       {showCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -115,7 +158,9 @@ export default function SupportPage() {
               />
               <div className="flex gap-3">
                 <button onClick={() => setShowCreate(false)} className="btn-ghost flex-1">Отмена</button>
-                <button onClick={createTicket} className="btn-primary flex-1">Отправить</button>
+                <button onClick={createTicket} disabled={creating} className="btn-primary flex-1 disabled:opacity-50">
+                  {creating ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Отправить'}
+                </button>
               </div>
             </div>
           </GlassCard>

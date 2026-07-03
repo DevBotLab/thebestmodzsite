@@ -92,7 +92,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        heading: ['"Press Start 2P"', 'cursive', 'monospace'],
+        heading: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -102,8 +102,9 @@ const config: Config = {
         '2xl': '1rem',
       },
       boxShadow: {
-        'glow-purple': '0 0 20px rgba(124, 58, 237, 0.3)',
-        'glow-lime': '0 0 20px rgba(132, 204, 22, 0.3)',
+        'glow-purple': '0 0 30px rgba(124, 58, 237, 0.15)',
+        'glow-lime': '0 0 30px rgba(132, 204, 22, 0.15)',
+        'glow-purple-strong': '0 0 40px rgba(124, 58, 237, 0.25)',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',

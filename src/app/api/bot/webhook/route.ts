@@ -1,7 +1,9 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getRedis } from '@/lib/redis'
-import { success, error } from '@/lib/api-response'
+import { success } from '@/lib/api-response'
+
+export const dynamic = 'force-dynamic'
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || ''
 const ADMIN_IDS = (process.env.ADMIN_TELEGRAM_IDS || '').split(',').map(id => id.trim()).filter(Boolean)
@@ -107,7 +109,7 @@ export async function POST(req: NextRequest) {
     const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'thebestmods_secret_2024'
     const secretToken = req.headers.get('x-telegram-bot-api-secret-token')
     if (secretToken && secretToken !== WEBHOOK_SECRET) {
-      return error('Unauthorized', 401)
+      return NextResponse.json({ ok: true })
     }
 
     const update = await req.json()

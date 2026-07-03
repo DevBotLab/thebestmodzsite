@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { success, error, unauthorized } from '@/lib/api-response'
+import { verifyRecaptcha } from '@/lib/recaptcha'
 import { reviewCreateSchema } from '@/lib/validations'
 
 export async function GET(req: NextRequest) {
@@ -70,32 +71,33 @@ export async function POST(req: NextRequest) {
     const parsed = reviewCreateSchema.safeParse(body)
     if (!parsed.success) return error('Некорректные данные отзыва', 400)
 
-    const { text, rating, productId } = parsed.data
+    const { text, rating, productId, captchaToken } = parsed.data
+    if (captchaToken) {
+      const valid = await verifyRecaptcha(captchaToken)
+      if (!valid) return error('Проверка не пройдена', 400)
+    }
 
-    const completedOrder = productId
-      ? await prisma.order.findFirst({
-          where: {
-            userId: session.userId,
-            productId,
-            status: 'COMPLETED',
-          },
-        })
-      : await prisma.order.findFirst({
-          where: {
-            userId: session.userId,
-            status: 'COMPLETED',
-          },
-        })
+    const existingReview = await prisma.review.findFirst({
+      where: { userId: session.userId, productId },
+    })
+    if (existingReview) return error('Вы уже оставляли отзыв на этот товар', 400)
 
-    const isVerified = !!completedOrder
+    const completedOrder = await prisma.order.findFirst({
+      where: {
+        userId: session.userId,
+        productId,
+        status: 'COMPLETED',
+      },
+    })
+    if (!completedOrder) return error('Вы можете оставить отзыв только на купленный товар', 400)
 
     const review = await prisma.review.create({
       data: {
         userId: session.userId,
-        productId: productId || null,
+        productId,
         rating,
         text,
-        isVerified,
+        isVerified: true,
         isApproved: false,
       },
     })

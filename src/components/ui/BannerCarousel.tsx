@@ -14,10 +14,16 @@ interface Banner {
 }
 
 const defaultBanners: Banner[] = [
-  { title: 'PUBG MOBILE ЧИТЫ', imageUrl: '/banners/pubg.jpg', linkUrl: '/catalog/pubg-mobile' },
-  { title: 'MOBILE LEGENDS ЧИТЫ', imageUrl: '/banners/mlbb.jpg', linkUrl: '/catalog/mobile-legends' },
-  { title: 'СТЭНДОФФ 2 ЧИТЫ', imageUrl: '/banners/standoff.jpg', linkUrl: '/catalog/standoff-2' },
+  { title: 'PUBG MOBILE', imageUrl: '/banners/pubg.jpg', linkUrl: '/catalog/pubg-mobile' },
+  { title: 'MOBILE LEGENDS', imageUrl: '/banners/mlbb.jpg', linkUrl: '/catalog/mobile-legends' },
+  { title: 'СТЭНДОФФ 2', imageUrl: '/banners/standoff.jpg', linkUrl: '/catalog/standoff-2' },
 ]
+
+const gameDescriptions: Record<string, string> = {
+  'PUBG MOBILE': 'Премиум читы с антибан системой',
+  'MOBILE LEGENDS': 'Wallhack, ESP и автоматические комбо',
+  'СТЭНДОФФ 2': 'Aimbot, ESP и многое другое',
+}
 
 export function BannerCarousel({ banners = defaultBanners }: { banners?: Banner[] }) {
   return (
@@ -28,18 +34,30 @@ export function BannerCarousel({ banners = defaultBanners }: { banners?: Banner[
       autoplay={{ delay: 5000, disableOnInteraction: false }}
       pagination={{ clickable: true }}
       navigation
-      className="rounded-2xl overflow-hidden"
+      className="rounded-2xl overflow-hidden group"
     >
       {banners.map((banner) => (
         <SwiperSlide key={banner.title}>
           <Link href={banner.linkUrl || '#'}>
-            <div
-              className="relative h-48 md:h-64 bg-gradient-to-r from-purple-900/80 to-dark-200 flex items-center justify-center"
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-dark to-transparent" />
-              <h2 className="text-2xl md:text-4xl font-heading text-white text-center z-10 px-4">
-                {banner.title}
-              </h2>
+            <div className="relative h-48 md:h-64 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-900/90 via-dark-200/80 to-dark-200" />
+              <div className="absolute inset-0 bg-gradient-to-t from-dark via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-transparent" />
+              <div className="relative z-10 h-full flex flex-col items-center justify-center px-6">
+                <span className="badge-purple mb-3">Популярное</span>
+                <h2 className="text-2xl md:text-4xl font-bold text-white text-center mb-2">
+                  {banner.title}
+                </h2>
+                <p className="text-sm md:text-base text-gray-400 text-center max-w-md">
+                  {gameDescriptions[banner.title]}
+                </p>
+                <span className="mt-4 text-xs text-purple-300 inline-flex items-center gap-1.5 hover:text-purple-200 transition-colors">
+                  Подробнее
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </div>
             </div>
           </Link>
         </SwiperSlide>

@@ -13,7 +13,7 @@ export function GlassCard({ children, className = '', onClick, href }: GlassCard
 
   return (
     <Component
-      className={`glass-card p-6 transition-all duration-300 hover:glow-purple hover:border-purple-500/50 cursor-pointer ${className}`}
+      className={`glass-card p-6 transition-all duration-300 hover:border-purple-500/30 cursor-pointer group ${className}`}
       {...props}
     >
       {children}
