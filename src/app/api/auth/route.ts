@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { redis } from '@/lib/redis'
+import { getRedis } from '@/lib/redis'
 import { createToken, setAuthCookies } from '@/lib/auth'
 import { loginSchema } from '@/lib/validations'
 import { success, error, unauthorized } from '@/lib/api-response'
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) return error('Неверный код', 400)
 
     const { code } = parsed.data
-    const tgId = await redis.get(`auth_code:${code}`)
+    const tgId = await getRedis().get(`auth_code:${code}`)
     if (!tgId) return unauthorized('Код недействителен или истёк')
 
     const user = await prisma.user.upsert({
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       tokens
     )
 
-    await redis.del(`auth_code:${code}`)
+    await getRedis().del(`auth_code:${code}`)
 
     await prisma.auditLog.create({
       data: { userId: user.id, action: 'AUTH_LOGIN', ip: req.headers.get('x-forwarded-for') || null },

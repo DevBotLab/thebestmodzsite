@@ -1,14 +1,10 @@
 import Redis from 'ioredis'
 
-const globalForRedis = globalThis as unknown as {
-  redis: Redis | undefined
-}
+let _redis: Redis | null = null
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379'
-
-export const redis =
-  globalForRedis.redis ??
-  new Redis(REDIS_URL, {
+function createRedis(): Redis {
+  const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379'
+  const instance = new Redis(REDIS_URL, {
     maxRetriesPerRequest: 3,
     retryStrategy(times) {
       if (times > 3) return null
@@ -16,9 +12,15 @@ export const redis =
     },
     enableOfflineQueue: false,
   })
+  instance.on('error', (err) => {
+    console.error('Redis connection error:', err)
+  })
+  return instance
+}
 
-redis.on('error', (err) => {
-  console.error('Redis connection error:', err)
-})
-
-if (process.env.NODE_ENV !== 'production') globalForRedis.redis = redis
+export function getRedis(): Redis {
+  if (!_redis) {
+    _redis = createRedis()
+  }
+  return _redis
+}

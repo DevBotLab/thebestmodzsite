@@ -1,4 +1,4 @@
-import { redis } from './redis'
+import { getRedis } from './redis'
 
 interface RateLimitResult {
   success: boolean
@@ -26,7 +26,7 @@ export async function rateLimit(
 
   // Check if IP is blocked
   const blockKey = `ratelimit:blocked:${ipKey}`
-  const ttl = await redis.ttl(blockKey)
+  const ttl = await getRedis().ttl(blockKey)
   if (ttl > 0) {
     return { success: false, remaining: 0, reset: now + ttl, blocked: true }
   }
@@ -49,7 +49,7 @@ export async function rateLimit(
   const windowStart = now - interval
   const redisKey = `ratelimit:${key}`
 
-  const multi = redis.multi()
+  const multi = getRedis().multi()
   multi.zremrangebyscore(redisKey, 0, windowStart)
   multi.zcard(redisKey)
   multi.zadd(redisKey, now, `${now}:${Math.random()}`)
@@ -60,12 +60,12 @@ export async function rateLimit(
 
   if (requestCount > maxRequests) {
     const violationKey = `ratelimit:violations:${ipKey}`
-    const violations = await redis.incr(violationKey)
-    await redis.expire(violationKey, 3600)
+    const violations = await getRedis().incr(violationKey)
+    await getRedis().expire(violationKey, 3600)
 
     if (violations >= 3) {
-      await redis.set(blockKey, '1', 'EX', 3600)
-      await redis.del(violationKey)
+      await getRedis().set(blockKey, '1', 'EX', 3600)
+      await getRedis().del(violationKey)
       return { success: false, remaining: 0, reset: now + 3600, blocked: true }
     }
 
@@ -73,7 +73,7 @@ export async function rateLimit(
   }
 
   const violationKey = `ratelimit:violations:${ipKey}`
-  await redis.del(violationKey)
+  await getRedis().del(violationKey)
 
   return { success: true, remaining: maxRequests - requestCount, reset: now + interval }
 }

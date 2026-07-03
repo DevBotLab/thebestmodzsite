@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { redis } from '@/lib/redis'
+import { getRedis } from '@/lib/redis'
 import { success, error } from '@/lib/api-response'
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || ''
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     if (text.startsWith('/auth ')) {
       const code = text.replace('/auth ', '').trim()
-      const storedTgId = await redis.get(`auth_code:${code}`)
+      const storedTgId = await getRedis().get(`auth_code:${code}`)
 
       if (!storedTgId) {
         await sendTelegramMessage(chatId, '❌ Код недействителен или истёк. Запросите новый код на сайте.')
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
             },
           })
 
-      await redis.del(`auth_code:${code}`)
+      await getRedis().del(`auth_code:${code}`)
 
       const isAdmin = ADMIN_IDS.includes(tgId)
       await sendTelegramMessage(

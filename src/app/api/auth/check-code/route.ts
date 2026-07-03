@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { redis } from '@/lib/redis'
+import { getRedis } from '@/lib/redis'
 import { success, error } from '@/lib/api-response'
 
 export async function POST(req: NextRequest) {
@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     const { code } = await req.json()
     if (!code) return error('Code is required', 400)
 
-    const status = await redis.get(`auth_pending:${code}`)
+    const status = await getRedis().get(`auth_pending:${code}`)
     if (!status) return success({ status: 'expired' })
 
     return success({ status })
