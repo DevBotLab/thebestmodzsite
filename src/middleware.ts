@@ -19,6 +19,7 @@ const publicPaths = [
   '/api/news',
   '/api/cheat-statuses',
   '/api/reviews',
+  '/api/bot/webhook',
 ]
 
 // In-memory rate limiter for Edge runtime
