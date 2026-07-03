@@ -14,17 +14,4 @@ export const prisma =
     ],
   })
 
-// Connection pool: max 10 (set via DATABASE_URL ?connection_limit=10)
-// Handle connection errors
-prisma.$connect()
-  .then(() => {
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('[Prisma] Connected to database')
-    }
-  })
-  .catch((err) => {
-    console.error('[Prisma] Failed to connect to database:', err)
-    process.exit(1)
-  })
-
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
