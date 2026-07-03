@@ -48,7 +48,7 @@ export async function PUT(req: NextRequest) {
     data: {
       userId: session.userId,
       action: 'PAYMENT_METHOD_UPDATE',
-      details: { methodId: id, changes: { config, ...rest } },
+      details: { methodId: id, changes: { config: config as unknown as Prisma.InputJsonValue, ...rest } } as unknown as Prisma.InputJsonValue,
     },
   })
 
