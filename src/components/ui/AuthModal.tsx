@@ -113,7 +113,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               Открыть Telegram
             </a>
             <p className="text-sm text-gray-400 text-center">
-              Отправьте боту команду <code className="text-purple-400 bg-white/5 px-2 py-0.5 rounded">/start auth_{code}</code>
+              Отправьте боту команду <code className="text-purple-400 bg-white/5 px-2 py-0.5 rounded">/auth{code}</code>
             </p>
             <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
               <Loader2 className="w-4 h-4 animate-spin" />

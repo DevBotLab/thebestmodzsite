@@ -12,8 +12,8 @@ interface AuthModalProps {
 }
 
 function openTelegram(botUsername: string, text: string) {
-  const webUrl = `https://t.me/${botUsername}?start=auth_${text}`
-  const appUrl = `tg://resolve?domain=${botUsername}&start=auth_${text}`
+  const webUrl = `https://t.me/${botUsername}?start=auth${text}`
+  const appUrl = `tg://resolve?domain=${botUsername}&start=auth${text}`
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
 
   if (isMobile) {
@@ -72,7 +72,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   }, [isOpen, onClose])
 
   const handleCopy = useCallback(async () => {
-    const command = `/auth_${code}`
+    const command = `/auth${code}`
     try {
       await navigator.clipboard.writeText(command)
       setCopied(true)
@@ -152,7 +152,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </label>
               <div className="flex items-center gap-2">
                 <div className="flex-1 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 font-mono text-sm text-lime-400 break-all select-all">
-                  /auth_{code}
+                  /auth{code}
                 </div>
                 <button
                   onClick={handleCopy}

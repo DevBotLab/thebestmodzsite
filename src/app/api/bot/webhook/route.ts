@@ -136,8 +136,8 @@ export async function POST(req: NextRequest) {
           `1. Перейдите на сайт: ${SITE_URL}\n` +
           `2. Нажмите «Войти через Telegram»\n` +
           `3. Скопируйте код авторизации\n` +
-          `4. Отправьте его сюда: /auth &lt;код&gt;\n\n` +
-          `Пример: <code>/auth a1b2c3d4</code>`
+          `4. Отправьте код сюда: /auth&lt;код&gt;\n\n` +
+          `Пример: <code>/autha1b2c3d4e5f67890</code>`
         )
         return NextResponse.json({ ok: true })
       }
@@ -268,8 +268,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
-    if (text.startsWith('/auth_')) {
-      const code = text.replace('/auth_', '').trim()
+    if (text.startsWith('/auth') || text.startsWith('/start auth')) {
+      const code = text.startsWith('/start ')
+        ? text.replace('/start auth', '').trim()
+        : text.replace('/auth', '').trim()
       const exists = await getRedis().get(`auth_code:${code}`)
 
       if (!exists) {
@@ -358,7 +360,7 @@ export async function POST(req: NextRequest) {
       chatId,
       `👋 <b>Доступные команды:</b>\n\n` +
       `/start — Информация о магазине\n` +
-      `/auth_&lt;код&gt; — Авторизация на сайте\n` +
+      `/auth&lt;код&gt; — Авторизация на сайте\n` +
       `/pay &lt;ключ&gt; — Информация о платеже\n\n` +
       `💬 По вопросам обращайтесь в поддержку на сайте.`
     )
