@@ -38,7 +38,7 @@ export function BannerCarousel({ banners }: { banners?: Banner[] }) {
                   {banner.title}
                 </h2>
                 <p className="text-sm md:text-base text-gray-400 text-center max-w-md">
-                  {gameDescriptions[banner.title]}
+                  Популярный товар в нашем магазине
                 </p>
                 <span className="mt-4 text-xs text-purple-300 inline-flex items-center gap-1.5 hover:text-purple-200 transition-colors">
                   Подробнее
