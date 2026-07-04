@@ -135,7 +135,9 @@ export async function middleware(request: NextRequest) {
       if (timingSafeCompare(expectedHashVal, candidateHash)) {
         adminValid = true
         const token = await new SignJWT({ role: 'admin' }).setProtectedHeader({ alg: 'HS256' }).setExpirationTime('24h').sign(JWT_SECRET)
-        const response = NextResponse.next()
+        const remaining = '/' + pathParts.slice(2).join('/')
+        const rewriteUrl = new URL(remaining.replace(/\/+$/, '') || '/admin', request.url)
+        const response = NextResponse.rewrite(rewriteUrl)
         response.cookies.set('admin_token', token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 86400 })
         return response
       }
