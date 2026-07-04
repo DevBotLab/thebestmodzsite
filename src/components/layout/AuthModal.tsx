@@ -175,6 +175,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               Открыть Telegram
             </button>
 
+            <p className="text-xs text-zinc-500 text-center">
+              Если не открывается, найдите бота в поиске: <span className="text-purple-400">@{botUsername}</span>
+            </p>
+
             <div>
               <label className="text-xs text-zinc-400 mb-1.5 block">
                 Бот
