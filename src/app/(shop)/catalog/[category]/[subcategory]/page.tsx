@@ -1,30 +1,35 @@
 'use client'
 
 import { useParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { Loader2 } from 'lucide-react'
 import { BreadCrumbs } from '@/components/layout/BreadCrumbs'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { BackButton } from '@/components/layout/BackButton'
 
-const cheatProducts: Record<string, { name: string; slug: string; desc: string }[]> = {
-  'android-no-root': [
-    { name: 'Jarvis', slug: 'jarvis', desc: 'Многофункциональный чит для PUBG Mobile' },
-    { name: 'ZoloCheat', slug: 'zolocheat', desc: 'Премиум чит с Aimbot и ESP' },
-    { name: 'Z Mod', slug: 'z-mod', desc: 'Популярный мод с расширенными функциями' },
-    { name: 'Falcon', slug: 'falcon', desc: 'Быстрый и незаметный чит' },
-  ],
-  'ios': [
-    { name: 'ZoloCheat', slug: 'zolocheat', desc: 'Премиум чит для iOS' },
-    { name: 'Jarvis', slug: 'jarvis', desc: 'Чит для iOS устройств' },
-  ],
-  'android-root': [
-    { name: 'Jarvis', slug: 'jarvis', desc: 'Чит с Root доступом' },
-    { name: 'Falcon', slug: 'falcon', desc: 'Falcon для Root устройств' },
-  ],
-  'android': [
-    { name: 'ML Bot', slug: 'ml-bot', desc: 'Бот для Mobile Legends' },
-    { name: 'XX Mod', slug: 'xx-mod', desc: 'Мод с дополнительными функциями' },
-  ],
+interface ProductItem {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  platform: string | null
+  category: { id: string; slug: string; name: string }
+}
+
+const platformSlugToEnum: Record<string, string> = {
+  'android-no-root': 'Android_NoRoot',
+  'android-root': 'Android_Root',
+  'ios': 'iOS',
+  'panel': 'Panel',
+  'android': 'Android_NoRoot',
+}
+
+const subcategoryNames: Record<string, string> = {
+  'android-no-root': 'Android • Без Рут',
+  'ios': 'iOS • iPad • iPhone',
+  'android-root': 'Android • Рут',
+  'android': 'Android',
 }
 
 export default function SubcategoryPage() {
@@ -32,26 +37,42 @@ export default function SubcategoryPage() {
   const category = params.category as string
   const subcategory = params.subcategory as string
 
-  const categoryNames: Record<string, string> = {
-    'pubg-mobile': 'PUBG MOBILE',
-    'mobile-legends': 'MOBILE LEGENDS',
-    'standoff-2': 'СТЭНДОФФ 2',
-  }
+  const [products, setProducts] = useState<ProductItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [categoryName, setCategoryName] = useState(category)
 
-  const subcategoryNames: Record<string, string> = {
-    'android-no-root': 'Android • Без Рут',
-    'ios': 'iOS • iPad • iPhone',
-    'android-root': 'Android • Рут',
-    'android': 'Android',
-  }
+  useEffect(() => {
+    const platform = platformSlugToEnum[subcategory]
+    const query = new URLSearchParams({ limit: '50' })
+    if (platform) query.set('platform', platform)
 
-  const products = cheatProducts[subcategory] ?? []
+    fetch(`/api/products?${query}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success) {
+          setProducts(d.data.items)
+          if (d.data.items.length > 0) {
+            setCategoryName(d.data.items[0].category.name)
+          }
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [subcategory])
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
+      </div>
+    )
+  }
 
   return (
     <div>
       <BreadCrumbs
         items={[
-          { label: categoryNames[category] || category, href: `/catalog/${category}` },
+          { label: categoryName, href: `/catalog/${category}` },
           { label: subcategoryNames[subcategory] || subcategory },
         ]}
       />
@@ -64,10 +85,10 @@ export default function SubcategoryPage() {
       {products.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {products.map((product) => (
-            <Link key={product.slug} href={`/catalog/${category}/${subcategory}/${product.slug}`}>
+            <Link key={product.id} href={`/catalog/${category}/${subcategory}/${product.slug}`}>
               <GlassCard>
                 <h3 className="text-lg font-bold text-white mb-1">{product.name}</h3>
-                <p className="text-sm text-gray-400">{product.desc}</p>
+                {product.description && <p className="text-sm text-gray-400">{product.description}</p>}
               </GlassCard>
             </Link>
           ))}

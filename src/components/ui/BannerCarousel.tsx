@@ -13,19 +13,8 @@ interface Banner {
   linkUrl?: string | null
 }
 
-const defaultBanners: Banner[] = [
-  { title: 'PUBG MOBILE', imageUrl: '/banners/pubg.jpg', linkUrl: '/catalog/pubg-mobile' },
-  { title: 'MOBILE LEGENDS', imageUrl: '/banners/mlbb.jpg', linkUrl: '/catalog/mobile-legends' },
-  { title: 'СТЭНДОФФ 2', imageUrl: '/banners/standoff.jpg', linkUrl: '/catalog/standoff-2' },
-]
-
-const gameDescriptions: Record<string, string> = {
-  'PUBG MOBILE': 'Премиум читы с антибан системой',
-  'MOBILE LEGENDS': 'Wallhack, ESP и автоматические комбо',
-  'СТЭНДОФФ 2': 'Aimbot, ESP и многое другое',
-}
-
-export function BannerCarousel({ banners = defaultBanners }: { banners?: Banner[] }) {
+export function BannerCarousel({ banners }: { banners?: Banner[] }) {
+  if (!banners || banners.length === 0) return null
   return (
     <Swiper
       modules={[Autoplay, Pagination, Navigation]}

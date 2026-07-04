@@ -14,14 +14,14 @@ export default function OfferPage() {
         <h2 className="text-xl font-bold text-white mb-4">1. Термины и определения</h2>
         <p>В настоящей Публичной оферте (далее — «Оферта») следующие термины используются в указанном значении:</p>
         <ul className="list-disc pl-6 mt-3 space-y-2">
-          <li><strong className="text-white">Продавец</strong> — Администрация интернет-магазина TheBestMods (ИП/Самозанятый, действующий в соответствии с законодательством РФ), осуществляющая продажу цифровых товаров через Сайт.</li>
+          <li><strong className="text-white">Продавец</strong> — Администрация интернет-магазина TheBestModz (ИП/Самозанятый, действующий в соответствии с законодательством РФ), осуществляющая продажу цифровых товаров через Сайт.</li>
           <li><strong className="text-white">Покупатель</strong> — любое дееспособное физическое лицо, достигшее 18 лет, акцептовавшее настоящую Оферту и осуществившее покупку Товара на Сайте.</li>
           <li><strong className="text-white">Товар</strong> — цифровой ключ (лицензия, подписка, код активации), предоставляющий доступ к функционалу программного обеспечения (читов, модов, скриптов) для компьютерных и мобильных игр.</li>
           <li><strong className="text-white">Ключ</strong> — уникальная буквенно-цифровая последовательность, генерируемая Продавцом, которая предоставляет Покупателю доступ к конкретному Товару.</li>
-          <li><strong className="text-white">Сайт</strong> — интернет-ресурс, расположенный по адресу https://thebestmods, включая все его поддомены и страницы.</li>
+          <li><strong className="text-white">Сайт</strong> — интернет-ресурс, расположенный по адресу https://TheBestModz, включая все его поддомены и страницы.</li>
           <li><strong className="text-white">Акцепт</strong> — полное и безоговорочное принятие Покупателем условий настоящей Оферты путём совершения действий, указанных в разделе 4.</li>
           <li><strong className="text-white">Личный кабинет</strong> — персональный раздел Сайта, доступный Покупателю после авторизации через Telegram, содержащий информацию о приобретённых Товарах, статусе ключей и истории заказов.</li>
-          <li><strong className="text-white">Служба поддержки</strong> — канал коммуникации с Продавцом через Telegram: @thebestmods_support.</li>
+          <li><strong className="text-white">Служба поддержки</strong> — канал коммуникации с Продавцом через Telegram: @TheBestModz_support.</li>
         </ul>
       </section>
 
@@ -311,7 +311,7 @@ export default function OfferPage() {
         </p>
         <p className="mt-3">
           12.3. По всем вопросам, связанным с приобретением Товаров, Покупатель может обратиться в Службу
-          поддержки через Telegram: <a href="https://t.me/thebestmods_support" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300">@thebestmods_support</a>.
+          поддержки через Telegram: <a href="https://t.me/TheBestModz_support" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300">@TheBestModz_support</a>.
         </p>
       </section>
     </GlassCard>

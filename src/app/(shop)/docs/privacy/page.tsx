@@ -15,8 +15,8 @@ export default function PrivacyPage() {
         <p>
           Настоящая Политика конфиденциальности (далее — «Политика») определяет порядок обработки и защиты персональных
           данных пользователей (далее — «Пользователь» или «Вы»), которые могут быть получены администрацией интернет-
-          магазина TheBestMods (далее — «Администрация», «Мы») при использовании Пользователем сервисов, товаров и услуг,
-          предоставляемых на сайте https://thebestmods (далее — «Сайт»).
+          магазина TheBestModz (далее — «Администрация», «Мы») при использовании Пользователем сервисов, товаров и услуг,
+          предоставляемых на сайте https://TheBestModz (далее — «Сайт»).
         </p>
         <p className="mt-4">
           Используя Сайт и регистрируясь через Telegram, Пользователь выражает свое безоговорочное согласие с условиями
@@ -81,7 +81,7 @@ export default function PrivacyPage() {
           <li>Для защиты прав и законных интересов Администрации в случае нарушения Пользователем условий Публичной оферты или Пользовательского соглашения.</li>
         </ul>
         <p className="mt-4">
-          Мы <strong className="text-white">не продаём</strong> персональные данные Пользователей и <strong className="text-white">не передаём</strong> их для маркетинговых целей третьих сторон. Ваши данные используются исключительно в рамках функционирования Сайта TheBestMods.
+          Мы <strong className="text-white">не продаём</strong> персональные данные Пользователей и <strong className="text-white">не передаём</strong> их для маркетинговых целей третьих сторон. Ваши данные используются исключительно в рамках функционирования Сайта TheBestModz.
         </p>
       </section>
 
@@ -202,7 +202,7 @@ export default function PrivacyPage() {
         </p>
         <p className="mt-4">
           По всем вопросам, связанным с обработкой персональных данных, Пользователь может обратиться в службу
-          поддержки через Telegram: <a href="https://t.me/thebestmods_support" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300">@thebestmods_support</a>.
+          поддержки через Telegram: <a href="https://t.me/TheBestModz_support" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300">@TheBestModz_support</a>.
         </p>
       </section>
     </GlassCard>

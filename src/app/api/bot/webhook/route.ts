@@ -248,7 +248,7 @@ export async function POST(req: NextRequest) {
     if (text === '/start') {
       await sendTelegramInlineKeyboard(
         chatId,
-        `👋 <b>Добро пожаловать в TheBestMods!</b>\n\n` +
+        `👋 <b>Добро пожаловать в TheBestModz!</b>\n\n` +
         `Мы — магазин качественных читов для игр.\n\n` +
         `📌 <b>Что мы предлагаем:</b>\n` +
         `• Читы для популярных игр\n` +
@@ -268,8 +268,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
-    if (text.startsWith('/auth ')) {
-      const code = text.replace('/auth ', '').trim()
+    if (text.startsWith('/auth_')) {
+      const code = text.replace('/auth_', '').trim()
       const exists = await getRedis().get(`auth_code:${code}`)
 
       if (!exists) {
@@ -358,7 +358,7 @@ export async function POST(req: NextRequest) {
       chatId,
       `👋 <b>Доступные команды:</b>\n\n` +
       `/start — Информация о магазине\n` +
-      `/auth &lt;код&gt; — Авторизация на сайте\n` +
+      `/auth_&lt;код&gt; — Авторизация на сайте\n` +
       `/pay &lt;ключ&gt; — Информация о платеже\n\n` +
       `💬 По вопросам обращайтесь в поддержку на сайте.`
     )

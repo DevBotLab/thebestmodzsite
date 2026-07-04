@@ -1,98 +1,104 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { useState } from 'react'
-import { Heart, ShoppingCart } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ShoppingCart, Loader2, Heart } from 'lucide-react'
 import { BreadCrumbs } from '@/components/layout/BreadCrumbs'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { PaymentModal } from '@/components/ui/PaymentModal'
 import { BackButton } from '@/components/layout/BackButton'
 import toast from 'react-hot-toast'
 
-const productTariffs: Record<string, { name: string; slug: string; days: number; price: number }[]> = {
-  'jarvis': [
-    { name: '1 день', slug: '1-day', days: 1, price: 50 },
-    { name: '7 дней', slug: '7-days', days: 7, price: 200 },
-    { name: '30 дней', slug: '30-days', days: 30, price: 500 },
-    { name: 'Навсегда', slug: 'forever', days: 9999, price: 1500 },
-  ],
-  'zolocheat': [
-    { name: '1 день', slug: '1-day', days: 1, price: 70 },
-    { name: '7 дней', slug: '7-days', days: 7, price: 300 },
-    { name: '30 дней', slug: '30-days', days: 30, price: 700 },
-    { name: 'Навсегда', slug: 'forever', days: 9999, price: 2000 },
-  ],
-  'z-mod': [
-    { name: '7 дней', slug: '7-days', days: 7, price: 250 },
-    { name: '30 дней', slug: '30-days', days: 30, price: 600 },
-  ],
-  'falcon': [
-    { name: '1 день', slug: '1-day', days: 1, price: 40 },
-    { name: '7 дней', slug: '7-days', days: 7, price: 150 },
-    { name: '30 дней', slug: '30-days', days: 30, price: 400 },
-  ],
-  'ml-bot': [
-    { name: '7 дней', slug: '7-days', days: 7, price: 300 },
-    { name: '30 дней', slug: '30-days', days: 30, price: 800 },
-  ],
-  'xx-mod': [
-    { name: '7 дней', slug: '7-days', days: 7, price: 200 },
-    { name: '30 дней', slug: '30-days', days: 30, price: 500 },
-  ],
+interface Tariff {
+  id: string
+  name: string
+  slug: string
+  days: number
+  price: number
 }
 
-const productNames: Record<string, string> = {
-  'jarvis': 'Jarvis',
-  'zolocheat': 'ZoloCheat',
-  'z-mod': 'Z Mod',
-  'falcon': 'Falcon',
-  'ml-bot': 'ML Bot',
-  'xx-mod': 'XX Mod',
+interface Product {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  tariffs: Tariff[]
+  platform: string | null
+  category: { id: string; name: string; slug: string }
+}
+
+const platformSlugToEnum: Record<string, string> = {
+  'android-no-root': 'Android_NoRoot',
+  'android-root': 'Android_Root',
+  'ios': 'iOS',
+  'panel': 'Panel',
+  'android': 'Android_NoRoot',
 }
 
 export default function ProductPage() {
   const params = useParams()
   const category = params.category as string
   const subcategory = params.subcategory as string
-  const product = params.product as string
+  const productSlug = params.product as string
 
-  const [isFavorite, setIsFavorite] = useState(false)
-  const [paymentOpen, setPaymentOpen] = useState(false)
+  const [product, setProduct] = useState<Product | null>(null)
+  const [loading, setLoading] = useState(true)
   const [selectedTariff, setSelectedTariff] = useState<{ name: string; price: number } | null>(null)
+  const [paymentOpen, setPaymentOpen] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
 
-  const tariffs = productTariffs[product] ?? []
-  const name = productNames[product] || product
+  useEffect(() => {
+    const platform = platformSlugToEnum[subcategory]
+    const params = new URLSearchParams({ limit: '50' })
+    if (platform) params.set('platform', platform)
 
-  const categoryNames: Record<string, string> = {
-    'pubg-mobile': 'PUBG MOBILE',
-    'mobile-legends': 'MOBILE LEGENDS',
-  }
+    fetch(`/api/products?${params}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.success) throw new Error(d.error || 'Ошибка')
+        const found = d.data.items.find((p: Product) => p.slug === productSlug)
+        if (found) setProduct(found)
+      })
+      .catch(() => toast.error('Не удалось загрузить товар'))
+      .finally(() => setLoading(false))
+  }, [productSlug, subcategory])
 
-  const subcategoryNames: Record<string, string> = {
-    'android-no-root': 'Android • Без Рут',
-    'ios': 'iOS • iPad • iPhone',
-    'android-root': 'Android • Рут',
-    'android': 'Android',
-  }
-
-  const handleBuy = (tariff: { name: string; price: number }) => {
-    setSelectedTariff(tariff)
+  const handleBuy = (tariff: Tariff) => {
+    setSelectedTariff({ name: tariff.name, price: tariff.price })
     setPaymentOpen(true)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
+      </div>
+    )
+  }
+
+  if (!product) {
+    return (
+      <div className="text-center py-20">
+        <h2 className="text-2xl font-bold text-white">Товар не найден</h2>
+        <div className="mt-4"><BackButton /></div>
+      </div>
+    )
   }
 
   return (
     <div>
       <BreadCrumbs
         items={[
-          { label: categoryNames[category] || category, href: `/catalog/${category}` },
-          { label: subcategoryNames[subcategory] || subcategory, href: `/catalog/${category}/${subcategory}` },
-          { label: name },
+          { label: product.category.name, href: `/catalog/${product.category.slug}` },
+          { label: subcategory, href: `/catalog/${product.category.slug}/${subcategory}` },
+          { label: product.name },
         ]}
       />
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-heading text-white">{name}</h1>
+          <h1 className="text-3xl font-heading text-white">{product.name}</h1>
+          {product.description && <p className="text-gray-400 mt-1">{product.description}</p>}
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -106,8 +112,8 @@ export default function ProductPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {tariffs.map((tariff) => (
-          <GlassCard key={tariff.slug} className="flex flex-col items-center text-center">
+        {product.tariffs.map((tariff) => (
+          <GlassCard key={tariff.id} className="flex flex-col items-center text-center">
             <h3 className="text-xl font-bold text-white mb-2">{tariff.name}</h3>
             <p className="text-3xl font-heading text-lime-400 mb-4">{tariff.price} ₽</p>
             <p className="text-sm text-gray-400 mb-4">{tariff.days === 9999 ? 'Бессрочно' : `${tariff.days} дней`}</p>
@@ -126,7 +132,7 @@ export default function ProductPage() {
         <PaymentModal
           isOpen={paymentOpen}
           onClose={() => setPaymentOpen(false)}
-          productName={name}
+          productName={product.name}
           tariffName={selectedTariff.name}
           price={selectedTariff.price}
         />

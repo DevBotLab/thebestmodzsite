@@ -16,10 +16,10 @@ export default function AboutPage() {
         <GlassCard>
           <div className="flex items-center gap-3 mb-4">
             <ShoppingBag className="w-8 h-8 text-lime-400" />
-            <h2 className="text-xl font-bold text-white">TheBestMods</h2>
+            <h2 className="text-xl font-bold text-white">TheBestModz</h2>
           </div>
           <p className="text-gray-300 leading-relaxed">
-            TheBestMods — это ведущий магазин читов и ключей для мобильных игр. 
+            TheBestModz — это ведущий магазин читов и ключей для мобильных игр. 
             Мы предоставляем доступ к лучшим читам для PUBG MOBILE, Mobile Legends, 
             Standoff 2 и других популярных игр. Все продукты проходят тщательную 
             проверку на безопасность и работоспособность.
@@ -54,11 +54,11 @@ export default function AboutPage() {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <Mail className="w-5 h-5 text-purple-400" />
-              <span className="text-gray-300">support@thebestmods.com</span>
+              <span className="text-gray-300">support@TheBestModz.com</span>
             </div>
             <div className="flex items-center gap-3">
               <Shield className="w-5 h-5 text-purple-400" />
-              <span className="text-gray-300">@TheBestModsBot — Telegram бот</span>
+              <span className="text-gray-300">@TheBestModzBot — Telegram бот</span>
             </div>
             <div className="flex items-center gap-3">
               <HeadphonesIcon className="w-5 h-5 text-purple-400" />

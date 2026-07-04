@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { jwtVerify } from 'jose'
+import { jwtVerify, SignJWT } from 'jose'
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret')
+const ADMIN_SECRET = process.env.ADMIN_SECRET_PATH || 'admin-fallback'
 const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3000'
 
 const MAX_LOGIN_ATTEMPTS = 5
@@ -115,16 +116,32 @@ export async function middleware(request: NextRequest) {
   }
 
   // Admin secret path check (timing-safe)
-  if (pathname.startsWith('/admin/')) {
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
     const pathParts = pathname.split('/').filter(Boolean)
+    const adminCookie = request.cookies.get('admin_token')?.value
+    let adminValid = false
+
+    if (adminCookie) {
+      try {
+        const { payload } = await jwtVerify(adminCookie, JWT_SECRET)
+        adminValid = (payload as Record<string, unknown>).role === 'admin'
+      } catch {}
+    }
+
     if (pathParts.length >= 2) {
       const candidateSecret = pathParts[1]
       const expectedHashVal = await getExpectedSecretHash()
       const candidateHash = await hashString(candidateSecret)
-      if (!timingSafeCompare(expectedHashVal, candidateHash)) {
-        return NextResponse.redirect(new URL('/', request.url))
+      if (timingSafeCompare(expectedHashVal, candidateHash)) {
+        adminValid = true
+        const token = await new SignJWT({ role: 'admin' }).setProtectedHeader({ alg: 'HS256' }).setExpirationTime('24h').sign(JWT_SECRET)
+        const response = NextResponse.next()
+        response.cookies.set('admin_token', token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 86400 })
+        return response
       }
-    } else {
+    }
+
+    if (!adminValid) {
       return NextResponse.redirect(new URL('/', request.url))
     }
   }

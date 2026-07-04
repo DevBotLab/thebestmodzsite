@@ -39,7 +39,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-lime-500 flex items-center justify-center">
                 <ShoppingBag className="w-4 h-4 text-white" />
               </div>
-              <span className="text-gradient-simple font-bold text-lg tracking-tight">TheBestMods</span>
+              <span className="text-gradient-simple font-bold text-lg tracking-tight">TheBestModz</span>
             </Link>
           </div>
 
@@ -55,9 +55,6 @@ export function Header({ onMenuToggle }: HeaderProps) {
             </Link>
             <Link href="/support" className="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-xl hover:bg-white/[0.05] transition-all duration-200">
               Поддержка
-            </Link>
-            <Link href="/prices" className="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-xl hover:bg-white/[0.05] transition-all duration-200">
-              Цены
             </Link>
           </nav>
 

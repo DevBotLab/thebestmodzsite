@@ -13,20 +13,11 @@ const statusConfig = {
   UPDATING: { icon: RefreshCw, label: 'В обновлении', color: 'text-gray-400', bg: 'bg-gray-500/10' },
 }
 
-const defaultItems: CheatStatusItem[] = [
-  { gameName: 'PUBG MOBILE', cheatName: 'Jarvis', status: 'SAFE' },
-  { gameName: 'PUBG MOBILE', cheatName: 'ZoloCheat', status: 'SAFE' },
-  { gameName: 'PUBG MOBILE', cheatName: 'Z Mod', status: 'RANDOM_BAN' },
-  { gameName: 'PUBG MOBILE', cheatName: 'Falcon', status: 'UPDATING' },
-  { gameName: 'Mobile Legends', cheatName: 'ML Bot', status: 'SAFE' },
-  { gameName: 'Mobile Legends', cheatName: 'XX Mod', status: 'BANNED' },
-  { gameName: 'Standoff 2', cheatName: 'ST Cheats', status: 'SAFE' },
-  { gameName: 'Standoff 2', cheatName: 'Force', status: 'RANDOM_BAN' },
-]
-
 export function CheatStatusList({ items }: { items?: CheatStatusItem[] }) {
-  const list = items ?? defaultItems
-  const grouped = list.reduce<Record<string, CheatStatusItem[]>>((acc, item) => {
+  if (!items || items.length === 0) {
+    return <p className="text-gray-500 text-sm text-center py-8">Статусы читов загружаются...</p>
+  }
+  const grouped = items.reduce<Record<string, CheatStatusItem[]>>((acc, item) => {
     ;(acc[item.gameName] ??= []).push(item)
     return acc
   }, {})

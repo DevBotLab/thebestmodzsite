@@ -21,24 +21,9 @@ interface StatsGraphProps {
   height?: number
 }
 
-function generateDefaultData(): DayStat[] {
-  const days: DayStat[] = []
-  const now = new Date()
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(now)
-    d.setDate(d.getDate() - i)
-    const label = d.toLocaleDateString('ru-RU', { weekday: 'short' })
-    days.push({
-      date: d.toISOString().slice(0, 10),
-      label,
-      value: Math.floor(Math.random() * 50) + 10,
-    })
-  }
-  return days
-}
-
 export function StatsGraph({ data, height = 200 }: StatsGraphProps) {
-  const chartData = data || generateDefaultData()
+  if (!data || data.length === 0) return null
+  const chartData = data
 
   return (
     <div className="w-full animate-fade-in">

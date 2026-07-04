@@ -49,9 +49,7 @@ export default function CategoryPage() {
     load()
   }, [slug])
 
-  const handleBuy = (tariffId: string) => {
-    // TODO: integrate auth check & purchase flow
-  }
+  const handleBuy = (_tariffId: string) => {}
 
   if (loading) {
     return (

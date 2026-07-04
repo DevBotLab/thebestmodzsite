@@ -1,22 +1,30 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect } from 'react'
 import Link from 'next/link'
-import { User, Wallet, History, Repeat, Gift, ArrowRight } from 'lucide-react'
+import { User, Wallet, History, Repeat, Gift, ArrowRight, Loader2 } from 'lucide-react'
 import { GlassCard } from '@/components/ui/GlassCard'
-import { AuthModal } from '@/components/ui/AuthModal'
-
-const mockUser = {
-  firstName: 'Игрок',
-  tgId: '123456789',
-  balance: 2500,
-}
+import { AuthModal } from '@/components/layout/AuthModal'
+import { useAuthStore } from '@/store/useAuthStore'
+import { useState } from 'react'
 
 export default function ProfilePage() {
   const [authOpen, setAuthOpen] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const { user, isAuthenticated, isLoading, checkAuth, logout } = useAuthStore()
 
-  if (!isLoggedIn) {
+  useEffect(() => {
+    checkAuth()
+  }, [checkAuth])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
+      </div>
+    )
+  }
+
+  if (!isAuthenticated || !user) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center">
         <User className="w-16 h-16 text-purple-400 mb-4" />
@@ -45,13 +53,13 @@ export default function ProfilePage() {
             <User className="w-8 h-8 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">{mockUser.firstName}</h1>
-            <p className="text-sm text-gray-400">TG ID: {mockUser.tgId}</p>
+            <h1 className="text-2xl font-bold text-white">{user.firstName || 'Пользователь'}</h1>
+            <p className="text-sm text-gray-400">TG ID: {user.tgId}</p>
           </div>
         </div>
         <div className="flex items-center justify-between p-4 bg-dark-300 rounded-xl">
           <span className="text-gray-400">Баланс</span>
-          <span className="text-2xl font-heading text-lime-400">{mockUser.balance} ₽</span>
+          <span className="text-2xl font-heading text-lime-400">{user.balance} ₽</span>
         </div>
       </div>
 

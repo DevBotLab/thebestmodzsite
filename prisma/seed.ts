@@ -120,21 +120,7 @@ async function main() {
   console.log('Payment methods created.');
 
   // ─── News ─────────────────────────────────────────────────────────────────
-  await prisma.news.createMany({
-    data: [
-      {
-        title: 'Обновление ассортимента читов',
-        content: 'Добавлены новые версии Zoon mod и Jarvis для PUBG MOBILE. Улучшена защита от банов. Обновлены тарифы — действуют скидки при покупке на 30 дней.',
-        isPublished: true,
-      },
-      {
-        title: 'Запуск сертификатов GBox',
-        content: 'Теперь доступны сертификаты GBox LITE и GBox PREMIUM. Обеспечивают стабильную работу читов на iOS без джейлбрейка. Подробности в нашем Telegram.',
-        isPublished: true,
-      },
-    ],
-  });
-  console.log('News created.');
+  console.log('News table ready (add via admin panel).');
 
   // ─── Banners ──────────────────────────────────────────────────────────────
   await prisma.banner.createMany({
@@ -160,7 +146,7 @@ async function main() {
   // ─── System Settings ──────────────────────────────────────────────────────
   const systemSettings = [
     { key: 'siteName', value: 'THE BEST MODS' },
-    { key: 'supportContact', value: '@thebestmods_support' },
+    { key: 'supportContact', value: '@thebestmodz_support' },
     { key: 'minDeposit', value: 100 },
     { key: 'referralPercent', value: 5 },
     { key: 'offer', value: 'Настоящая оферта является официальным предложением интернет-магазина THE BEST MODS. Оплачивая товар, вы соглашаетесь с условиями настоящей оферты.' },

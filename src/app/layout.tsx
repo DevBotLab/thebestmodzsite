@@ -15,7 +15,7 @@ const spaceGrotesk = Space_Grotesk({
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''
 
 export const metadata: Metadata = {
-  title: 'TheBestMods — магазин читов и ключей',
+  title: 'TheBestModz — магазин читов и ключей',
   description: 'Магазин читов для PUBG MOBILE, Mobile Legends, Standoff 2. Покупка ключей и подписок.',
 }
 

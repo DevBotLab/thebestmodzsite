@@ -9,12 +9,12 @@ export function Footer() {
           <div className="flex items-center gap-2">
             <span className="text-gray-400 text-sm">Наш канал:</span>
             <a
-              href="https://t.me/thebestmods"
+              href="https://t.me/thebestmodz"
               target="_blank"
               rel="noopener noreferrer"
               className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors"
             >
-              @thebestmods
+              @thebestmodz
             </a>
           </div>
           <div className="flex flex-wrap gap-4 justify-center">
@@ -30,7 +30,7 @@ export function Footer() {
           </div>
         </div>
         <div className="text-center mt-6 text-gray-600 text-xs">
-          &copy; {new Date().getFullYear()} TheBestMods. Все права защищены.
+          &copy; {new Date().getFullYear()} TheBestModz. Все права защищены.
         </div>
       </div>
     </footer>

@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
-import { X, Copy, Check, Bot, ExternalLink, Loader2 } from 'lucide-react'
+import { useEffect, useState, useCallback, useRef } from 'react'
+import { X, Copy, Check, Bot, ExternalLink, Loader2, Send } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '@/store/useAuthStore'
 import { executeRecaptcha } from '@/lib/useRecaptcha'
@@ -11,41 +11,72 @@ interface AuthModalProps {
   onClose: () => void
 }
 
+function openTelegram(botUsername: string, text: string) {
+  const webUrl = `https://t.me/${botUsername}?start=auth_${text}`
+  const appUrl = `tg://resolve?domain=${botUsername}&start=auth_${text}`
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+
+  if (isMobile) {
+    window.location.href = appUrl
+    setTimeout(() => window.open(webUrl, '_blank'), 500)
+  } else {
+    const iframe = document.createElement('iframe')
+    iframe.style.display = 'none'
+    iframe.src = appUrl
+    document.body.appendChild(iframe)
+    setTimeout(() => {
+      document.body.removeChild(iframe)
+      window.open(webUrl, '_blank', 'noopener')
+    }, 800)
+  }
+}
+
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [step, setStep] = useState<'loading' | 'code' | 'checking'>('loading')
   const [code, setCode] = useState('')
   const [botUsername, setBotUsername] = useState('')
   const [copied, setCopied] = useState(false)
   const { login } = useAuthStore()
+  const retryRef = useRef(0)
 
   useEffect(() => {
     if (!isOpen) return
     setStep('loading')
+    retryRef.current = 0
 
-    fetch('/api/auth/login', { method: 'POST' })
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success) {
-          setCode(d.data.code)
-          setBotUsername(d.data.botUsername)
-          setStep('code')
-        } else {
-          toast.error(d.error || 'Ошибка')
-          onClose()
-        }
-      })
-      .catch(() => {
-        toast.error('Ошибка соединения')
-        onClose()
-      })
+    const fetchCode = () => {
+      fetch('/api/auth/login', { method: 'POST' })
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.success) {
+            setCode(d.data.code)
+            setBotUsername(d.data.botUsername)
+            setStep('code')
+          } else {
+            toast.error(d.error || 'Ошибка')
+            onClose()
+          }
+        })
+        .catch(() => {
+          if (retryRef.current < 2) {
+            retryRef.current++
+            setTimeout(fetchCode, 1000)
+          } else {
+            toast.error('Ошибка соединения. Попробуйте ещё раз.')
+            onClose()
+          }
+        })
+    }
+
+    fetchCode()
   }, [isOpen, onClose])
 
   const handleCopy = useCallback(async () => {
-    const command = `/auth ${code}`
+    const command = `/auth_${code}`
     try {
       await navigator.clipboard.writeText(command)
       setCopied(true)
-      toast.success('Код скопирован!')
+      toast.success('Команда скопирована!')
       setTimeout(() => setCopied(false), 2000)
     } catch {
       toast.error('Не удалось скопировать')
@@ -117,6 +148,35 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <div className="space-y-4">
             <div>
               <label className="text-xs text-zinc-400 mb-1.5 block">
+                Команда для бота
+              </label>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 font-mono text-sm text-lime-400 break-all select-all">
+                  /auth_{code}
+                </div>
+                <button
+                  onClick={handleCopy}
+                  className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-purple-500/10 hover:border-purple-500/30 transition-all shrink-0"
+                >
+                  {copied ? (
+                    <Check className="w-4 h-4 text-lime-400" />
+                  ) : (
+                    <Copy className="w-4 h-4 text-zinc-400" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={() => openTelegram(botUsername, code)}
+              className="btn-primary w-full flex items-center justify-center gap-2 py-2.5"
+            >
+              <Send className="w-4 h-4" />
+              Открыть Telegram
+            </button>
+
+            <div>
+              <label className="text-xs text-zinc-400 mb-1.5 block">
                 Бот
               </label>
               <a
@@ -131,29 +191,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </a>
             </div>
 
-            <div>
-              <label className="text-xs text-zinc-400 mb-1.5 block">
-                Команда для авторизации
-              </label>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 font-mono text-sm text-lime-400">
-                  <span className="text-zinc-500">/auth</span> {code}
-                </div>
-                <button
-                  onClick={handleCopy}
-                  className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-purple-500/10 hover:border-purple-500/30 transition-all"
-                >
-                  {copied ? (
-                    <Check className="w-4 h-4 text-lime-400" />
-                  ) : (
-                    <Copy className="w-4 h-4 text-zinc-400" />
-                  )}
-                </button>
-              </div>
-            </div>
-
             <p className="text-xs text-zinc-500 text-center">
-              Отправьте эту команду в бота Telegram, затем нажмите &laquo;Я подтвердил&raquo;
+              Отправьте команду в бота Telegram, затем нажмите &laquo;Я подтвердил&raquo;
             </p>
 
             <button

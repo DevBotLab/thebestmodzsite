@@ -14,7 +14,7 @@ export default function AgreementPage() {
         <h2 className="text-xl font-bold text-white mb-4">1. Общие положения</h2>
         <p>
           1.1. Настоящее Пользовательское соглашение (далее — «Соглашение») регулирует отношения между администрацией
-          интернет-магазина TheBestMods (далее — «Администрация», «Мы») и любым лицом, использующим сайт https://thebestmods
+          интернет-магазина TheBestModz (далее — «Администрация», «Мы») и любым лицом, использующим сайт https://TheBestModz
           (далее — «Сайт»), его сервисы и функционал (далее — «Пользователь», «Вы»).
         </p>
         <p className="mt-3">
@@ -253,7 +253,7 @@ export default function AgreementPage() {
         <p className="mt-3">
           10.4. Пользователь подтверждает, что ознакомился со всеми условиями настоящего Соглашения, понимает
           их и добровольно принимает. Если у Пользователя есть вопросы по Соглашению, он может обратиться
-          в Службу поддержки через Telegram: <a href="https://t.me/thebestmods_support" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300">@thebestmods_support</a>.
+          в Службу поддержки через Telegram: <a href="https://t.me/TheBestModz_support" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300">@TheBestModz_support</a>.
         </p>
       </section>
     </GlassCard>
