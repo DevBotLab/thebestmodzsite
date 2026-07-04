@@ -15,11 +15,10 @@ export async function POST(req: NextRequest) {
     }
 
     const code = crypto.randomBytes(4).toString('hex')
-    const authLink = `https://t.me/${BOT_USERNAME}?start=auth_${code}`
 
-    await getRedis().set(`auth_pending:${code}`, 'pending', 'EX', 300)
+    await getRedis().set(`auth_code:${code}`, 'pending', 'EX', 300)
 
-    return success({ code, authLink, botUsername: BOT_USERNAME })
+    return success({ code, botUsername: BOT_USERNAME })
   } catch (e) {
     console.error('Login error:', e)
     return error('Ошибка генерации кода', 500)

@@ -1,6 +1,7 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { success } from '@/lib/api-response'
+
+export const dynamic = 'force-dynamic'
 
 export async function GET(req: NextRequest) {
   const cursor = req.nextUrl.searchParams.get('cursor')
@@ -17,5 +18,5 @@ export async function GET(req: NextRequest) {
   const items = hasMore ? news.slice(0, limit) : news
   const nextCursor = hasMore ? items[items.length - 1]?.id : null
 
-  return success({ items, nextCursor, hasMore })
+  return NextResponse.json({ items, nextCursor, hasMore })
 }

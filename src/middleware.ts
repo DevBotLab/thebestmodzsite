@@ -9,10 +9,7 @@ const MAX_LOGIN_ATTEMPTS = 5
 const LOGIN_WINDOW_MS = 15 * 60 * 1000
 
 const publicPaths = [
-  '/api/auth/login',
-  '/api/auth/register',
-  '/api/auth/telegram',
-  '/api/auth/refresh',
+  '/api/auth',
   '/api/products',
   '/api/categories',
   '/api/banners',

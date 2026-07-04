@@ -270,46 +270,21 @@ export async function POST(req: NextRequest) {
 
     if (text.startsWith('/auth ')) {
       const code = text.replace('/auth ', '').trim()
-      const storedTgId = await getRedis().get(`auth_code:${code}`)
+      const exists = await getRedis().get(`auth_code:${code}`)
 
-      if (!storedTgId) {
+      if (!exists) {
         await sendTelegramMessage(chatId, '❌ Код недействителен или истёк. Запросите новый код на сайте.')
         return NextResponse.json({ ok: true })
       }
 
       const tgId = String(from?.id || '')
-      if (storedTgId !== tgId) {
-        await sendTelegramMessage(chatId, '❌ Этот код предназначен для другого аккаунта Telegram.')
-        return NextResponse.json({ ok: true })
-      }
+      await getRedis().set(`auth_code:${code}`, tgId, 'EX', 300)
 
-      const existingUser = await prisma.user.findUnique({ where: { tgId } })
-      const user = existingUser
-        ? await prisma.user.update({
-            where: { tgId },
-            data: { tgUsername: from?.username || null, firstName: from?.first_name || null, lastName: from?.last_name || null },
-          })
-        : await prisma.user.create({
-            data: {
-              tgId,
-              tgUsername: from?.username || null,
-              firstName: from?.first_name || null,
-              lastName: from?.last_name || null,
-            },
-          })
-
-      await getRedis().del(`auth_code:${code}`)
-
-      const isAdmin = ADMIN_IDS.includes(tgId)
       await sendTelegramMessage(
         chatId,
-        `✅ <b>Авторизация успешна!</b>\n\n` +
-        `Привет, ${user.firstName || 'пользователь'}!\n` +
-        `Telegram ID: <code>${tgId}</code>\n` +
-        `Username: ${from?.username ? '@' + from.username : '—'}\n` +
-        `Баланс: ${user.balance} ₽\n` +
-        `${isAdmin ? '\n🔑 У вас права администратора.' : ''}\n\n` +
-        `Перейдите на сайт, чтобы продолжить:\n${SITE_URL}`
+        `✅ <b>Код принят!</b>\n\n` +
+        `Вернитесь на сайт и нажмите «Я подтвердил», чтобы завершить авторизацию.\n\n` +
+        `${SITE_URL}`
       )
 
       return NextResponse.json({ ok: true })
