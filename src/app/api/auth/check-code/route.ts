@@ -7,9 +7,10 @@ export async function POST(req: NextRequest) {
     const { code } = await req.json()
     if (!code) return error('Code is required', 400)
 
-    const status = await getRedis().get(`auth_pending:${code}`)
-    if (!status) return success({ status: 'expired' })
+    const val = await getRedis().get(`auth_code:${code}`)
+    if (!val) return success({ status: 'expired' })
 
+    const status = val === 'pending' ? 'pending' : 'confirmed'
     return success({ status })
   } catch (e) {
     console.error('Check code error:', e)
