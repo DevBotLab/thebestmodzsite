@@ -23,12 +23,12 @@ export default function NewsDetailPage() {
 
   useEffect(() => {
     fetch(`/api/news/${slug}`)
-      .then((r) => {
-        if (!r.ok) throw new Error('Новость не найдена')
-        return r.json()
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success) setNews(d.data)
+        else setError(d.error || 'Новость не найдена')
       })
-      .then(setNews)
-      .catch((e) => setError(e.message))
+      .catch(() => setError('Ошибка загрузки'))
       .finally(() => setLoading(false))
   }, [slug])
 
